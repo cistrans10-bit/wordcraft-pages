@@ -1158,6 +1158,8 @@ impl Session {
             user_dict_path: _,
             dirty,
             clipboard: _,
+            // Pages copied in the Pages pane: kept like the clipboard.
+            page_clipboard: _,
             // Like the clipboard: what the next paste can make a move of.
             pending_move: _,
             clipboard_text: _,
