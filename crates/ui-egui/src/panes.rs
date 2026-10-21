@@ -146,16 +146,11 @@ fn nav(app: &mut WordApp, ui: &mut Ui) {
         }
     });
     ui.separator();
+    if app.ui.nav_tab == "pages" {
+        crate::page_pane::show(app, ui);
+        return;
+    }
     egui::ScrollArea::vertical().show(ui, |ui| match app.ui.nav_tab.as_str() {
-        "pages" => {
-            let l = app.session.layout();
-            for (i, p) in l.pages.iter().enumerate() {
-                let label = crate::i18n::fmt(tl!("Page {page}"), &[("page", &p.number.to_string())]);
-                if ui.selectable_label(app.session.page_hint == i, label).clicked() {
-                    let _ = app.run("edit.goto", json!({"page": i + 1}));
-                }
-            }
-        }
         "results" => {
             let results = app.session.find.results.clone();
             ui.label(egui::RichText::new(format!("{} results", results.len())).small().weak());

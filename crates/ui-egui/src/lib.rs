@@ -62,6 +62,7 @@ pub mod ink;
 pub mod keys;
 pub mod keytips;
 pub mod mini_toolbar;
+pub mod page_pane;
 pub mod objects;
 pub mod options;
 pub mod panes;
@@ -537,6 +538,8 @@ pub struct WordApp {
     pub(crate) keytip_rects: Vec<(egui::Rect, String)>,
     /// The Navigation pane's search box takes the keyboard on its next frame (Ctrl+F, #712).
     pub(crate) nav_search_focus: bool,
+    /// The Navigation pane's Pages tab: thumbnails, picked pages, a page being dragged.
+    pub(crate) pages_ui: page_pane::PagesUi,
     styled: bool,
     /// The CJK face order the installed UI fonts use (Chinese first, or Japanese first).
     fonts_hans: bool,
@@ -673,6 +676,7 @@ impl WordApp {
             control_click: false,
             keytip_rects: Vec::new(),
             nav_search_focus: false,
+            pages_ui: Default::default(),
             styled: false,
             fonts_hans: false,
             fonts_korean: false,

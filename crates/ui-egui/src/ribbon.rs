@@ -1224,6 +1224,9 @@ fn insert(app: &mut WordApp, ui: &mut Ui) {
             small(ui, app, "blankPage", Some("Blank Page"), "Blank Page", "insert.blankPage", json!({}), false);
             small(ui, app, "pageBreak", Some("Page Break"), "Page Break", "insert.pageBreak", json!({}), false);
         });
+        stack(ui, |ui| {
+            small(ui, app, "duplicatePage", Some("Duplicate Page"), "Duplicate Page", "page.duplicate", json!({}), false);
+        });
     });
     group(ui, "Tables", None, app, |ui, app| {
         menu_button(ui, app, "table", Some("Table"), "Add a Table", true, "insert.table", |ui, app| {

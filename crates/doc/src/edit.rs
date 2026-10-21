@@ -808,6 +808,61 @@ impl Document {
         }
     }
 
+    /// The body's top-level blocks from block `from.0` (starting at byte `from.1` of that
+    /// paragraph) up to block `to.0`, exclusive; with `to.1 > 0` the first `to.1` bytes of that
+    /// paragraph come too. A copy of whole pages: tables are copied whole, and a partial last
+    /// paragraph drops its section break. The fragment carries copies of its text boxes.
+    pub fn copy_body_span(&self, from: (usize, usize), to: (usize, usize)) -> Fragment {
+        let (k0, o0) = from;
+        let (k1, o1) = to;
+        let mut blocks = Vec::new();
+        let end = k1.min(self.body.len().saturating_sub(1));
+        for k in k0..=end {
+            let Some(b) = self.body.get(k) else { break };
+            let last = k == k1;
+            if last && o1 == 0 {
+                break;
+            }
+            match &**b {
+                Block::Para(p) => {
+                    let mut p = p.clone();
+                    let len = p.len();
+                    let stop = if last { p.clamp(o1) } else { len };
+                    let start = if k == k0 { p.clamp(o0.min(stop)) } else { 0 };
+                    let _ = p.delete(stop, len);
+                    let _ = p.delete(0, start);
+                    if last && stop < len {
+                        p.section = None;
+                    }
+                    p.touch();
+                    blocks.push(Block::Para(p));
+                }
+                Block::Table(t) => blocks.push(Block::Table(t.clone())),
+            }
+        }
+        crate::control::balance_blocks(&mut blocks);
+        let parts = self.text_box_parts(&blocks);
+        Fragment { blocks, parts }
+    }
+
+    /// Insert a fragment's blocks whole into the body before top-level block `at` (no merging
+    /// with the paragraphs around them, as pasting whole pages wants). Its text boxes get stories
+    /// of their own. Returns how many blocks went in.
+    pub fn insert_body_blocks(&mut self, at: usize, frag: &Fragment) -> Result<usize> {
+        if at > self.body.len() {
+            return Err(DocError::BadPath(at.to_string()));
+        }
+        let mut blocks = frag.blocks.clone();
+        let mut budget = MAX_PASTED_BOXES;
+        self.adopt_text_boxes(&mut blocks, &frag.parts, 0, &mut budget);
+        let n = blocks.len();
+        for (i, mut b) in blocks.into_iter().enumerate() {
+            each_para_mut(&mut b, 0, &mut |p| p.touch());
+            self.body.insert(at + i, Arc::new(b));
+        }
+        Ok(n)
+    }
+
     /// Replace every block of a story.
     pub fn set_story(&mut self, story: crate::StoryRef, blocks: Blocks) -> Result<()> {
         let s = self.story_mut(story)?;

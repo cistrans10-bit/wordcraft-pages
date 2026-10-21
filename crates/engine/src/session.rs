@@ -367,6 +367,8 @@ pub struct Session {
     /// Add to Dictionary and File › Options › Proofing save through it (#40).
     pub user_dict_path: Option<std::path::PathBuf>,
     pub clipboard: Option<Fragment>,
+    /// Whole pages copied or cut from the Pages pane (`page.copy`, `page.cut`), waiting for `page.paste`.
+    pub page_clipboard: Option<Fragment>,
     /// A tracked cut the next paste can turn into a move (see `cmd::moves`).
     pub pending_move: Option<crate::cmd::moves::PendingMove>,
     /// Plain text mirror of the clipboard (for the system clipboard).
@@ -638,6 +640,7 @@ impl Session {
             user_dict_path: None,
             dirty: false,
             clipboard: None,
+            page_clipboard: None,
             pending_move: None,
             clipboard_text: String::new(),
             clipboard_html: String::new(),

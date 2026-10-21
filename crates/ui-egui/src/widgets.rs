@@ -595,6 +595,12 @@ pub fn command_icon(id: &str) -> &str {
         ("view.marks", "pilcrow"),
         ("edit.repeat", "redo"),
         ("file.new", "blankPage"),
+        ("page.duplicate", "duplicatePage"),
+        ("page.delete", "deletePage"),
+        ("page.insertBlank", "blankPage"),
+        ("page.copy", "copy"),
+        ("page.cut", "cut"),
+        ("page.paste", "paste"),
         ("tools.customizeRibbon", "more"),
     ];
     ICONS.iter().find(|(c, _)| *c == id).map_or_else(|| id.rsplit('.').next().unwrap_or(id), |(_, icon)| *icon)

@@ -29,6 +29,7 @@ pub mod objects;
 pub mod options;
 pub mod outline;
 pub mod page;
+pub mod pages;
 pub mod para;
 pub mod paste;
 pub mod phonetic;
@@ -74,6 +75,7 @@ pub fn registry() -> Registry {
     v.extend(insert::specs());
     v.extend(equation::specs());
     v.extend(page::specs());
+    v.extend(pages::specs());
     v.extend(table::specs());
     v.extend(table_style::specs());
     v.extend(table_draw::specs());
