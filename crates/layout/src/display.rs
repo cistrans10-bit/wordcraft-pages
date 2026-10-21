@@ -1550,8 +1550,9 @@ fn line_draws(
     extra: &wordcraft_doc::connector::ShapeExtra,
     out: &mut Vec<Draw>,
 ) {
-    use wordcraft_doc::connector::{connector_segs, end_direction};
-    match connector_segs(kind, rect.w, rect.h) {
+    use wordcraft_doc::connector::{connector_path, end_direction, path_direction};
+    let path = connector_path(kind, rect.w, rect.h, extra);
+    match path.clone() {
         Some(segs) => {
             let segs = segs
                 .into_iter()
@@ -1568,17 +1569,18 @@ fn line_draws(
         None => out.push(Draw::Shape { rect, kind, fill: None, stroke, stroke_width, effects, corner: None, dash: extra.dash.pattern(stroke_width) }),
     }
     let Some(color) = stroke else { return };
-    // Our line runs from the bottom-left corner to the top-right; connectors from the top-left
-    // to the bottom-right.
-    let (start, end) =
-        if kind == ShapeKind::Line { ((rect.x, rect.bottom()), (rect.right(), rect.y)) } else { ((rect.x, rect.y), (rect.right(), rect.bottom())) };
+    // Lines and connectors run from the top-left corner to the bottom-right, as DrawingML's
+    // `line` preset is drawn (#611; flips give the other directions), so arrowheads sit where the
+    // stroke starts and ends. An elbow's route ends there too, whatever its bends.
+    let (start, end) = ((rect.x, rect.y), (rect.right(), rect.bottom()));
     let width = if stroke_width.is_finite() { stroke_width.clamp(0.25, 200.0) } else { 0.75 };
     let len = (width * 3.5).max(7.0);
     for (on, tip, at_end) in [(extra.arrow_start, start, false), (extra.arrow_end, end, true)] {
         if !on {
             continue;
         }
-        let (dx, dy) = end_direction(kind, rect.w, rect.h, at_end);
+        let along = if extra.bent.is_some() { path.as_deref().and_then(|p| path_direction(p, at_end)) } else { None };
+        let (dx, dy) = along.unwrap_or_else(|| end_direction(kind, rect.w, rect.h, at_end));
         let (bx, by) = (tip.0 - dx * len, tip.1 - dy * len);
         let (nx, ny) = (-dy * len * 0.45, dx * len * 0.45);
         let segs = vec![PathSeg::Move(tip.0, tip.1), PathSeg::Line(bx + nx, by + ny), PathSeg::Line(bx - nx, by - ny), PathSeg::Close];

@@ -3540,3 +3540,59 @@ fn equation_in_alternate_content_is_read() {
     assert_eq!(equations(p), vec![("x+1".to_string(), false)]);
     assert!(!p.plain_text().contains("[picture]"));
 }
+
+/// Report diagrams: an elbow connector keeps its preset and where it bends (`bentConnector2`
+/// bends once; a negative `adj1` routes round the side of a shape), a label box that doesn't
+/// wrap (`wrap="none"`) keeps that, and objects stacked out of document order keep their order
+/// (`relativeHeight`), while ones stacked in order need none. All of it survives a save.
+#[test]
+fn report_diagrams_keep_their_elbows_labels_and_stacking() {
+    use wordcraft_doc::connector::Bent;
+    let z = |s: String, v: u32| s.replace(r#"relativeHeight="1""#, &format!(r#"relativeHeight="{v}""#));
+    let body = format!(
+        "<w:p>{}{}{}{}</w:p><w:p>{}{}</w:p>",
+        z(anchored_wsp("Elbow 1", 1270000, 635000, r#"<a:prstGeom prst="bentConnector2"><a:avLst/></a:prstGeom><a:ln><a:tailEnd type="triangle"/></a:ln>"#, "", "<wps:cNvCnPr/>"), 30),
+        z(
+            anchored_wsp("Elbow 2", 1270000, 635000, r#"<a:prstGeom prst="bentConnector3"><a:avLst><a:gd name="adj1" fmla="val -9023"/></a:avLst></a:prstGeom>"#, "", "<wps:cNvCnPr/>"),
+            20
+        ),
+        z(anchored_wsp("Box", 1270000, 635000, r#"<a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val="FFFFFF"/></a:solidFill>"#, "", "<wps:cNvSpPr/>"), 10),
+        z(
+            anchored_wsp(
+                "Label",
+                307340,
+                218440,
+                r#"<a:prstGeom prst="rect"><a:avLst/></a:prstGeom>"#,
+                "",
+                r#"<wps:cNvSpPr txBox="1"/><wps:txbx><w:txbxContent><w:p><w:r><w:t>2.1</w:t></w:r></w:p></w:txbxContent></wps:txbx>"#,
+            )
+            .replace("<wps:bodyPr/>", r#"<wps:bodyPr wrap="none"/>"#),
+            40
+        ),
+        z(anchored_wsp("In order 1", 635000, 635000, r#"<a:prstGeom prst="rect"><a:avLst/></a:prstGeom>"#, "", "<wps:cNvSpPr/>"), 5),
+        z(anchored_wsp("In order 2", 635000, 635000, r#"<a:prstGeom prst="rect"><a:avLst/></a:prstGeom>"#, "", "<wps:cNvSpPr/>"), 6),
+    );
+    let check = |d: &Document, when: &str| {
+        let ps: Vec<&wordcraft_doc::Paragraph> = d.body.iter().filter_map(|b| b.as_para()).collect();
+        let objs = &ps[0].objects;
+        let bent = |o: &InlineObject| match o {
+            InlineObject::Shape { extra, .. } => extra.bent,
+            _ => None,
+        };
+        assert_eq!(bent(&objs[0]), Some(Bent { segments: 2, adj: [None; 3] }), "{when}");
+        assert_eq!(bent(&objs[1]), Some(Bent { segments: 3, adj: [Some(-9023), None, None] }), "{when}");
+        let zs: Vec<u32> = objs.iter().filter_map(|o| o.frame().map(|(_, _, f)| f.z)).collect();
+        assert!(zs[0] > zs[1] && zs[1] > zs[2] && zs[3] > zs[0], "{when}: stacked out of order: {zs:?}");
+        let label = match &objs[3] {
+            InlineObject::Shape { story: Some(id), .. } => *id,
+            o => panic!("{when}: {o:?}"),
+        };
+        assert!(d.parts.get(&label).is_some_and(|p| p.body.no_wrap), "{when}");
+        // Objects stacked as they come need no order of their own.
+        assert!(ps[1].objects.iter().all(|o| o.frame().is_some_and(|(_, _, f)| f.z == 0)), "{when}");
+    };
+    let d = read_body(&body);
+    check(&d, "read");
+    let back = wordcraft_docx::read(&wordcraft_docx::write(&d).unwrap()).unwrap();
+    check(&back, "saved and read again");
+}

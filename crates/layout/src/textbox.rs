@@ -95,6 +95,54 @@ fn lay(ctx: &mut Ctx, id: u32, blocks: &Blocks, len: f32, vert: TextVert, depth:
     layout_box(ctx, story, blocks, &[], len, BoxContext::Other, depth + 1, None).items
 }
 
+/// Widest a text box whose lines don't wrap lays them out, points (the largest page side).
+const NO_WRAP_WIDTH: f32 = 1584.0;
+
+/// The lines of a text box that doesn't wrap its text (`wrap="none"`), `len` being the room
+/// inside its margins: laid out as long as its longest line when that is longer, and moved so
+/// they keep their alignment in the box (centred text overhangs both sides, as in Word).
+fn unwrapped(ctx: &mut Ctx, id: u32, blocks: &Blocks, len: f32, depth: usize) -> Vec<Placed> {
+    let snap = (ctx.counters.clone(), ctx.eq_count);
+    let wide = lay(ctx, id, blocks, NO_WRAP_WIDTH, TextVert::Horz, depth);
+    let longest = wide
+        .iter()
+        .filter_map(|it| match it {
+            Placed::Lines { para, l0, l1, .. } => para
+                .lines
+                .get(*l0..*l1)
+                .map(|ls| ls.iter().map(|l| l.xs.last().copied().unwrap_or(0.0) - l.xs.first().copied().unwrap_or(0.0)).fold(0.0f32, f32::max)),
+            _ => None,
+        })
+        .fold(0.0f32, f32::max);
+    (ctx.counters, ctx.eq_count) = snap;
+    if !longest.is_finite() || longest <= len + 0.01 {
+        return lay(ctx, id, blocks, len, TextVert::Horz, depth);
+    }
+    let along = (longest + 0.5).min(NO_WRAP_WIDTH);
+    let mut items = lay(ctx, id, blocks, along, TextVert::Horz, depth);
+    // How the box's paragraphs align: all centred or all right keep that in the box.
+    let aligns: Vec<wordcraft_doc::props::Align> = blocks
+        .iter()
+        .filter_map(|b| b.as_para())
+        .map(|p| ctx.doc.styles.resolve_para(&p.props).align)
+        .collect();
+    let all = |a: wordcraft_doc::props::Align| !aligns.is_empty() && aligns.iter().all(|x| *x == a);
+    let share = if all(wordcraft_doc::props::Align::Center) {
+        0.5
+    } else if all(wordcraft_doc::props::Align::Right) {
+        1.0
+    } else {
+        0.0
+    };
+    let dx = -(along - len) * share;
+    if dx != 0.0 {
+        for it in &mut items {
+            it.translate(dx, 0.0);
+        }
+    }
+    items
+}
+
 /// The items showing text box `id` in its frame `rect` (page coordinates): its text, or its
 /// share of a linked chain's, cut to what fits, aligned and turned as the box says.
 pub(crate) fn box_items(ctx: &mut Ctx, id: u32, rect: Rect, depth: usize) -> Vec<Placed> {
@@ -107,7 +155,11 @@ pub(crate) fn box_items(ctx: &mut Ctx, id: u32, rect: Rect, depth: usize) -> Vec
                 return Vec::new();
             }
             let blocks = ctx.doc.parts.get(&id).map(|p| p.blocks.clone()).unwrap_or_default();
-            let inner = lay(ctx, id, &blocks, len, body.vert, depth);
+            let inner = if body.no_wrap && body.vert == TextVert::Horz {
+                unwrapped(ctx, id, &blocks, len, depth)
+            } else {
+                lay(ctx, id, &blocks, len, body.vert, depth)
+            };
             ctx.boxes.leave();
             // Text that doesn't fit inside the margins is hidden, as in Word; a box that resizes
             // to fit its text shows it all (#743).

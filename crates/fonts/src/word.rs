@@ -86,7 +86,29 @@ fn substitutes(family: &str) -> &'static [&'static str] {
         "DejaVu Serif",
         "Source Serif 4",
     ];
+    // Bookman Old Style (installed with Office): a wide face, so documents that line text up
+    // with spaces (labels beside drawings) need its widths. Open look-alikes with its metrics
+    // (TeX Gyre Bonum, URW Bookman) before any other serif.
+    const BOOKMAN: &[&str] = &[
+        "Bookman Old Style",
+        "Bookman",
+        "ITC Bookman",
+        "TeX Gyre Bonum",
+        "URW Bookman",
+        "URW Bookman L",
+        "Bookman URW",
+        "Caladea",
+        "Times New Roman",
+        "Liberation Serif",
+        "Georgia",
+        "Noto Serif",
+        "DejaVu Serif",
+        "Source Serif 4",
+    ];
     let f = family.to_ascii_lowercase();
+    if f == "bookman old style" || f == "bookman" {
+        return BOOKMAN;
+    }
     if is_thai_serif(&f) {
         return THAI_SERIF;
     }

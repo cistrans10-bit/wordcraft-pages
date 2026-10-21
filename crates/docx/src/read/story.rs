@@ -429,6 +429,7 @@ impl Reader<'_> {
         para.text = pb.text;
         para.runs = pb.runs;
         para.objects = pb.objects;
+        stacking_order(&mut para.objects);
         // Paragraph boundaries inside an instruction are hidden with the field code.
         // The result paragraph still takes a line, even when its cached text is empty.
         if sc.fields.iter().any(|f| f.phase == Phase::Instr) && para.plain_text().is_empty() {
@@ -1432,6 +1433,8 @@ impl Reader<'_> {
             }
             part.body.inset = (inset != wordcraft_doc::TEXT_BOX_INSET).then_some(inset);
             part.body.auto_fit = bp.child("a:spAutoFit").is_some();
+            // Lines that don't wrap in the box (`wrap="none"`): a label keeps to one line.
+            part.body.no_wrap = bp.attr("wrap") == Some("none");
         }
         // The shape style's text colour (`a:fontRef`, often `lt1`: white on the accent fill).
         if let Some(id) = story
@@ -1467,6 +1470,18 @@ impl Reader<'_> {
             self.glued.extend(extra.start.iter().chain(extra.end.iter()).map(|e| e.id));
         }
         extra.warp = wsp.child("wps:bodyPr").and_then(|b| b.child("a:prstTxWarp")).and_then(text_warp);
+        // An elbow's own preset and bends (#: `bentConnector2` has one bend, adjust values move them).
+        if kind == ShapeKind::ElbowConnector {
+            let geom = sppr.and_then(|s| s.child("a:prstGeom"));
+            let segments = prst.strip_prefix("bentConnector").and_then(|n| n.parse::<u8>().ok()).filter(|n| (2..=5).contains(n)).unwrap_or(3);
+            let adj = |n: &str| {
+                geom.and_then(|g| preset_adj(g, n)).map(|v| v.clamp(-i64::from(wordcraft_doc::connector::MAX_BENT_ADJ), i64::from(wordcraft_doc::connector::MAX_BENT_ADJ)) as i32)
+            };
+            let bent = wordcraft_doc::connector::Bent { segments, adj: [adj("adj1"), adj("adj2"), adj("adj3")] };
+            if bent != (wordcraft_doc::connector::Bent { segments: 3, adj: [None; 3] }) {
+                extra.bent = Some(bent);
+            }
+        }
         // A freeform: its custom geometry (#743: in a group too).
         let freeform = sppr.and_then(|s| super::freeform::cust_geom(s, w, h)).map(|mut f| {
             f.alpha = super::freeform::line_alpha(ln);
@@ -1941,6 +1956,8 @@ fn nv_alt(p: Option<&El>) -> (String, AltText) {
 
 fn anchor_float(c: &El) -> Float {
     let mut f = Float { wrap: Wrap::Square, ..Float::default() };
+    // Stacking order (ECMA-376 Part 1 §20.4.2.3): which of two overlapping objects is on top.
+    f.z = c.attr("relativeHeight").and_then(|v| v.trim().parse::<u32>().ok()).unwrap_or(0);
     let behind = on_off_attr(c, "behindDoc");
     // Word wraps a position relative to the page's size (`wp14:pctPosVOffset`) in
     // `mc:AlternateContent`; its Fallback gives the same position as an offset (#743).
@@ -2338,5 +2355,19 @@ fn group_xfrm(sppr: Option<&El>) -> Xfrm {
         ext: pos(pair("a:ext", "cx", "cy", max)).unwrap_or((0.0, 0.0)),
         ch_off: pair("a:chOff", "x", "y", max),
         ch_ext: pos(pair("a:chExt", "cx", "cy", max)),
+    }
+}
+
+/// Keep a paragraph's floating objects' stacking order (`relativeHeight`) only where it says
+/// something their order in the paragraph doesn't: objects stacked as they come (every file
+/// WordCraft saves, most others) are drawn that way anyway, and keep none.
+fn stacking_order(objects: &mut [InlineObject]) {
+    let zs: Vec<u32> = objects.iter().filter_map(|o| o.frame().filter(|(_, _, f)| f.wrap != Wrap::Inline).map(|(_, _, f)| f.z)).collect();
+    if zs.windows(2).all(|w| w.first() <= w.get(1)) {
+        for o in objects.iter_mut() {
+            if let Some(f) = o.float_mut() {
+                f.z = 0;
+            }
+        }
     }
 }

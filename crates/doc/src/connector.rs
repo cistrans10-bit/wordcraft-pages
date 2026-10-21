@@ -41,6 +41,52 @@ pub struct ShapeExtra {
     /// The outline dash pattern; absent in older saved documents means solid.
     #[serde(skip_serializing_if = "crate::line_dash::LineDash::is_solid")]
     pub dash: crate::line_dash::LineDash,
+    /// An elbow connector's own route (`bentConnector2`…`5` and their adjust values); `None`
+    /// is `bentConnector3` bending halfway.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub bent: Option<Bent>,
+}
+
+/// An elbow connector's preset and where it bends (ECMA-376 Part 1 §20.1.10.56, the
+/// `bentConnector2`…`bentConnector5` preset shape definitions): `segments` is the preset's
+/// number (2 = one bend, out horizontally and in vertically; 3 = out, across, in horizontally;
+/// 4 and 5 bend once and twice more), and `adj` its adjust values `adj1`…`adj3` in 100000ths of
+/// the frame's width (`adj1`, `adj3`) or height (`adj2`); `None` is 50000, halfway. The values
+/// may lie outside 0…100000: the route then runs outside the frame (round a shape it connects).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+pub struct Bent {
+    pub segments: u8,
+    pub adj: [Option<i32>; 3],
+}
+
+/// The furthest an elbow's adjust value goes from its frame (100000ths: ten frame widths).
+pub const MAX_BENT_ADJ: i32 = 1_000_000;
+
+impl Bent {
+    /// The preset name (`bentConnector2`…`5`).
+    pub fn preset(&self) -> &'static str {
+        match self.segments {
+            2 => "bentConnector2",
+            4 => "bentConnector4",
+            5 => "bentConnector5",
+            _ => "bentConnector3",
+        }
+    }
+    /// The adjust value `i` (0-based) as a fraction, halfway by default.
+    fn frac(&self, i: usize) -> f32 {
+        self.adj.get(i).copied().flatten().map_or(0.5, |v| v.clamp(-MAX_BENT_ADJ, MAX_BENT_ADJ) as f32 / 100_000.0)
+    }
+    /// The route's corners in a `w` × `h` frame, from its top-left to its bottom-right.
+    pub fn points(&self, w: f32, h: f32) -> Vec<(f32, f32)> {
+        let (x1, y2, x3) = (w * self.frac(0), h * self.frac(1), w * self.frac(2));
+        match self.segments {
+            2 => vec![(0.0, 0.0), (w, 0.0), (w, h)],
+            4 => vec![(0.0, 0.0), (x1, 0.0), (x1, y2), (w, y2), (w, h)],
+            5 => vec![(0.0, 0.0), (x1, 0.0), (x1, y2), (x3, y2), (x3, h), (w, h)],
+            _ => vec![(0.0, 0.0), (x1, 0.0), (x1, h), (w, h)],
+        }
+    }
 }
 
 fn is_zero(v: &u32) -> bool {
@@ -168,6 +214,45 @@ pub fn connector_segs(kind: ShapeKind, w: f32, h: f32) -> Option<Vec<PathSeg>> {
     })
 }
 
+/// The path of a connector `kind` with properties `extra` in a `w` × `h` frame at the origin:
+/// [`connector_segs`], with an elbow connector routed as its own preset and adjust values say.
+pub fn connector_path(kind: ShapeKind, w: f32, h: f32, extra: &ShapeExtra) -> Option<Vec<PathSeg>> {
+    match (kind, extra.bent) {
+        (ShapeKind::ElbowConnector, Some(b)) => {
+            let (w, h) = (wordcraft_geom::finite(w), wordcraft_geom::finite(h));
+            let pts = b.points(w, h);
+            let mut segs = Vec::with_capacity(pts.len());
+            for (i, (x, y)) in pts.into_iter().enumerate() {
+                segs.push(if i == 0 { PathSeg::Move(x, y) } else { PathSeg::Line(x, y) });
+            }
+            Some(segs)
+        }
+        _ => connector_segs(kind, w, h),
+    }
+}
+
+/// Where an arrowhead points at a connector's end (`at_end`) or start: along the path's last or
+/// first piece that has a length (a curve's control point counts), in its unflipped frame.
+/// `None` when the path has no length at all.
+pub fn path_direction(segs: &[PathSeg], at_end: bool) -> Option<(f32, f32)> {
+    let mut pts: Vec<(f32, f32)> = Vec::new();
+    for s in segs {
+        match *s {
+            PathSeg::Move(x, y) | PathSeg::Line(x, y) => pts.push((x, y)),
+            PathSeg::Cubic(a, b, c, d, e, f) => pts.extend([(a, b), (c, d), (e, f)]),
+            PathSeg::Close => {}
+        }
+    }
+    if !at_end {
+        pts.reverse();
+    }
+    let (tx, ty) = *pts.last()?;
+    let (px, py) = pts.iter().rev().skip(1).find(|(x, y)| (x - tx).abs() > 0.01 || (y - ty).abs() > 0.01)?;
+    let (dx, dy) = (tx - px, ty - py);
+    let len = (dx * dx + dy * dy).sqrt();
+    (len > 1e-6 && len.is_finite()).then(|| (dx / len, dy / len))
+}
+
 /// The direction (unit vector) a line or connector `kind` arrives at its end (`at_end`) or
 /// leaves its start, in its unflipped `w` × `h` frame: where an arrowhead points.
 pub fn end_direction(kind: ShapeKind, w: f32, h: f32, at_end: bool) -> (f32, f32) {
@@ -179,7 +264,6 @@ pub fn end_direction(kind: ShapeKind, w: f32, h: f32, at_end: bool) -> (f32, f32
                 (0.0, 1.0)
             }
         }
-        ShapeKind::Line => (w, -h),
         _ => (w, h),
     };
     let len = (dx * dx + dy * dy).sqrt();
@@ -293,5 +377,27 @@ mod tests {
             extra.start = Some(ConnEnd { id: 7, site: 99 });
         }
         assert!(!reroute_group(&mut kids));
+    }
+}
+
+#[cfg(test)]
+mod bent_tests {
+    use super::*;
+
+    #[test]
+    fn elbows_follow_their_preset_and_adjust_values() {
+        let one = Bent { segments: 2, adj: [None; 3] };
+        assert_eq!(one.points(10.0, 4.0), vec![(0.0, 0.0), (10.0, 0.0), (10.0, 4.0)]);
+        let three = Bent { segments: 3, adj: [Some(-9_023), None, None] };
+        let p = three.points(100.0, 50.0);
+        assert!((p[1].0 + 9.023).abs() < 1e-3 && p[1].1 == 0.0 && (p[2].0 + 9.023).abs() < 1e-3 && p[2].1 == 50.0, "{p:?}");
+        // Hostile values stay bounded.
+        let wild = Bent { segments: 5, adj: [Some(i32::MAX), Some(i32::MIN), None] };
+        assert!(wild.points(1.0, 1.0).iter().all(|(x, y)| x.abs() <= 10.0 && y.abs() <= 10.0));
+        // Arrowheads point along the last piece: down into the end of a one-bend elbow.
+        let extra = ShapeExtra { bent: Some(one), ..Default::default() };
+        let segs = connector_path(ShapeKind::ElbowConnector, 10.0, 4.0, &extra).unwrap();
+        assert_eq!(path_direction(&segs, true), Some((0.0, 1.0)));
+        assert_eq!(path_direction(&segs, false), Some((-1.0, 0.0)));
     }
 }

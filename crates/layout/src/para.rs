@@ -2109,6 +2109,14 @@ fn break_lines(pl: &mut ParaLayout, env: &ParaEnv, mark_style: u32, level: Optio
                         end = LineEnd::Wrap;
                         break;
                     }
+                    // A default tab stop past the right indent: the tab moves to the next line,
+                    // where it steps on from the line's start (Word for Windows; labels lined up
+                    // with runs of tabs rely on it). Tab stops set past the indent hang there.
+                    let set = rp.tabs.iter().any(|t| (t.pos - stop.pos).abs() < 0.01) || hanging_at.is_some_and(|h| (h - stop.pos).abs() < 0.01);
+                    if ptab.is_none() && !set && stop.pos > right_edge + 0.01 && j > c0 && stop.align == TabAlign::Left {
+                        end = LineEnd::Wrap;
+                        break;
+                    }
                     xs.push(x);
                     if ptab.is_none() && stop.pos > right_edge + 0.01 && j > c0 && stop.align == TabAlign::Left {
                         // Tab past the right indent wraps (Word moves it to the next line).

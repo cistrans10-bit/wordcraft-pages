@@ -1050,7 +1050,7 @@ impl Writer<'_> {
             ShapeKind::Diamond => "diamond",
             ShapeKind::Line => "line",
             ShapeKind::StraightConnector => "straightConnector1",
-            ShapeKind::ElbowConnector => "bentConnector3",
+            ShapeKind::ElbowConnector => extra.bent.map_or("bentConnector3", |b| b.preset()),
             ShapeKind::CurvedConnector => "curvedConnector3",
             ShapeKind::Arrow => "rightArrow",
             ShapeKind::Star => "star5",
@@ -1060,7 +1060,21 @@ impl Writer<'_> {
             Some(f) => cust_geom(w, f, *sw, *sh),
             None => {
                 w.open("a:prstGeom", &[("prst", prst)]);
+                let bends: Vec<(&str, i32)> = extra
+                    .bent
+                    .filter(|_| *kind == ShapeKind::ElbowConnector)
+                    .map(|b| ["adj1", "adj2", "adj3"].into_iter().zip(b.adj).filter_map(|(n, v)| Some((n, v?))).collect())
+                    .unwrap_or_default();
                 match extra.corner.filter(|_| *kind == ShapeKind::RoundedRectangle) {
+                    _ if !bends.is_empty() => {
+                        w.open("a:avLst", &[]);
+                        for (n, v) in bends {
+                            let m = wordcraft_doc::connector::MAX_BENT_ADJ;
+                            let fmla = format!("val {}", v.clamp(-m, m));
+                            w.empty("a:gd", &[("name", n), ("fmla", &fmla)]);
+                        }
+                        w.close("a:avLst");
+                    }
                     Some(c) => {
                         w.open("a:avLst", &[]);
                         let fmla = format!("val {}", c.min(wordcraft_doc::connector::MAX_CORNER));
@@ -1142,6 +1156,9 @@ impl Writer<'_> {
         if body.anchor != wordcraft_doc::props::VAlign::Top {
             attrs.push(("anchor", wordcraft_doc::props::anchor_ooxml(body.anchor)));
         }
+        if body.no_wrap {
+            attrs.push(("wrap", "none"));
+        }
         // Internal margins, when the box has its own.
         let inset = body.inset.map(|i| i.map(|v| v.min(wordcraft_doc::MAX_TEXT_BOX_INSET).to_string()));
         if let Some(inset) = &inset {
@@ -1194,7 +1211,8 @@ impl Writer<'_> {
                     ("distL", &d),
                     ("distR", &d),
                     ("simplePos", "0"),
-                    ("relativeHeight", &self.z.to_string()),
+                    // The object's own stacking order; objects without one go above, in order.
+                    ("relativeHeight", &(if float.z > 0 { float.z } else { NEW_Z_BASE.saturating_add(self.z) }).to_string()),
                     ("behindDoc", behind),
                     ("locked", "0"),
                     ("layoutInCell", if float.outside_cell { "0" } else { "1" }),
@@ -1368,6 +1386,11 @@ impl Writer<'_> {
 }
 
 /// `w:sectPr` content after the header and footer references.
+
+/// Where the stacking order of objects without their own starts on save: above the values
+/// Word gives (which start at 251658240).
+const NEW_Z_BASE: u32 = 0x4000_0000;
+
 fn sectpr_body(w: &mut W, s: &SectionProps) {
     {
         // The section's own note options come before `w:type` (ECMA-376 §17.6.17).

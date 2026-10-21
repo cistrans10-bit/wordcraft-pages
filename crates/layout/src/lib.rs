@@ -1597,6 +1597,10 @@ struct PageBuilder<'a> {
     /// The number the next page takes instead of counting on: a section restarting its
     /// numbering, possibly at 0 (a cover page numbered 0).
     restart_at: Option<u32>,
+    /// A paragraph (top-level block index) that starts a new page whatever its own properties
+    /// say: one whose floating object, laid out where Word puts it, pushed it off its page (see
+    /// [`WrapBack`]).
+    force_break: Option<usize>,
     /// Wrap areas of floating objects on this page (see [`wrap_area`]).
     excl: Vec<WrapArea>,
     /// Wrap areas of the floating tables on this page, which others may not overlap.
@@ -2279,6 +2283,7 @@ fn layout_pass(
         after_break_mark: false,
         next_starts_page: false,
         restart_at: None,
+        force_break: None,
         excl: Vec::new(),
         float_tables: Vec::new(),
         line_no: 0,
@@ -2416,9 +2421,21 @@ fn layout_pass(
         pb.col_break_page = None;
         pb.next_starts_page = !web && sections.get(si + 1).is_some_and(|(_, s)| s.start != SectionStart::Continuous);
         let mut from = balance.then(|| (block, Snap::take(&mut pb, &ctx)));
+        // Floating objects wrap the text of their whole page, lines before their anchor too.
+        let mut wrap_back = (!web && outline.is_none() && !balance && WrapBack::wanted(doc, block, last)).then(WrapBack::default);
         while block <= last {
             let Some(b) = doc.body.get(block) else { break };
             let before = balance.then(|| (pb.pages.len(), Snap::take(&mut pb, &ctx)));
+            if let Some(wb) = wrap_back.as_mut() {
+                match wb.before_block(&mut pb, &mut ctx, block) {
+                    Some(again) => {
+                        block = again;
+                        continue;
+                    }
+                    None => {}
+                }
+            }
+            let (pages_before, excl_before) = (pb.pages.len(), pb.excl.len());
             pb.mark_block();
             match (&**b, &outline) {
                 (Block::Para(p), Some(o)) => place_outline_para(&mut ctx, &mut pb, p, block, o),
@@ -2430,6 +2447,13 @@ fn layout_pass(
                 && pb.pages.len() != pages
             {
                 from = Some((block, snap));
+            }
+            if let Some(wb) = wrap_back.as_mut()
+                && matches!(&**b, Block::Para(p) if !p.objects.is_empty())
+                && let Some(again) = wb.after_para(&mut pb, &mut ctx, block, pages_before, excl_before)
+            {
+                block = again;
+                continue;
             }
             block += 1;
         }
@@ -2522,6 +2546,123 @@ fn layout_pass(
     }
     lay.text_boxes = ctx.boxes.total().saturating_sub(boxes_discarded);
     Pass::Done(lay)
+}
+
+/// Times a page is laid out again for floats placed after the text they wrap ([`WrapBack`]).
+const WRAP_BACK_TRIES: usize = 4;
+
+/// Word lays a page out around every floating object on it, the text before the object's anchor
+/// paragraph too: a diagram centred on the page (positioned from the page or margins) whose
+/// anchor comes after some of the page's lines pushes those lines below it, as it does the lines
+/// after it. Laying text out top to bottom misses that, so the page is laid out again from its
+/// first block with the object's wrap area already in place. Should that push the anchor
+/// paragraph itself onto the next page, the object goes with it: the page is laid out once more
+/// as it first was, and the anchor paragraph starts the next page (where Word puts it, and
+/// records `w:lastRenderedPageBreak`). Two diagrams centred on one page no longer land on top of
+/// each other.
+#[derive(Default)]
+struct WrapBack<'a> {
+    /// The first block that started on the current page, the page count then, and the state
+    /// before it.
+    page: Option<(usize, usize, Snap<'a>)>,
+    /// A redo in progress: the anchor paragraph that triggered it and the page count it must
+    /// stay on.
+    redo: Option<(usize, usize)>,
+    /// Wrap areas placed ahead on the current page, for every redo of it so far.
+    ahead: Vec<WrapArea>,
+    /// Redos of the current page so far.
+    tries: usize,
+}
+
+impl<'a> WrapBack<'a> {
+    /// Whether any paragraph in blocks `first..=last` anchors an object text wraps around.
+    fn wanted(doc: &Document, first: usize, last: usize) -> bool {
+        doc.body.get(first..=last.min(doc.body.len().saturating_sub(1))).is_some_and(|bs| {
+            bs.iter().any(|b| {
+                b.as_para().is_some_and(|p| {
+                    p.objects.iter().any(|o| floating(o).is_some_and(|(_, _, f)| !matches!(f.wrap, Wrap::BehindText | Wrap::InFrontOfText)))
+                })
+            })
+        })
+    }
+
+    /// Before block `block`: note the state when it is the first on a new page, and if a redo
+    /// pushed its anchor paragraph off its page, start the page over without the areas placed
+    /// ahead, with that paragraph starting the next page. Returns the block to go on from.
+    fn before_block(&mut self, pb: &mut PageBuilder<'a>, ctx: &mut Ctx, block: usize) -> Option<usize> {
+        // The redo reached its anchor paragraph, or the page ended before it did.
+        if let Some((anchor, pages)) = self.redo
+            && (anchor == block || pb.pages.len() > pages)
+        {
+            self.redo = None;
+            if pb.pages.len() > pages
+                && let Some((first, _, snap)) = &self.page
+                && *first < anchor
+            {
+                let first = *first;
+                snap.restore(pb, ctx);
+                pb.force_break = Some(anchor);
+                self.ahead.clear();
+                return Some(first);
+            }
+        }
+        if self.page.as_ref().is_none_or(|(_, n, _)| *n != pb.pages.len()) {
+            self.page = Some((block, pb.pages.len(), Snap::take(pb, ctx)));
+            self.tries = 0;
+            self.ahead.clear();
+            self.redo = None;
+        }
+        None
+    }
+
+    /// After paragraph `block` (begun with `pages_before` pages and `excl_before` wrap areas on
+    /// the page): if the objects it placed on this page cover lines of earlier blocks laid on the
+    /// same page, go back to the page's first block with their wrap areas placed ahead. Returns
+    /// that block.
+    fn after_para(&mut self, pb: &mut PageBuilder<'a>, ctx: &mut Ctx, block: usize, pages_before: usize, excl_before: usize) -> Option<usize> {
+        if pb.pages.len() != pages_before || self.tries >= WRAP_BACK_TRIES || pb.force_break == Some(block) {
+            return None;
+        }
+        let (first, n, _) = self.page.as_ref()?;
+        let first = *first;
+        if *n != pages_before || first >= block {
+            return None;
+        }
+        let new: Vec<WrapArea> = pb.excl.get(excl_before..).map(|a| a.to_vec()).unwrap_or_default();
+        if new.is_empty() {
+            return None;
+        }
+        let page = pb.pages.last()?;
+        // A line under an area: across it and between its top and bottom. Lines beside an
+        // object (Square wrapping) have their span narrowed clear of it already.
+        let covered = page.items.iter().any(|it| {
+            let Placed::Lines { story: StoryRef::Body, path, para, l0, l1, x, y, .. } = it else { return false };
+            let Some(k) = path.0.first().map(|k| *k as usize) else { return false };
+            if k < first || k >= block {
+                return false;
+            }
+            let Some(top0) = para.lines.get(*l0).map(|l| l.top) else { return false };
+            para.lines.get(*l0..*l1).into_iter().flatten().any(|l| {
+                let (t, b) = (*y + l.top - top0, *y + l.top - top0 + l.height);
+                let (lo, hi) = (*x + l.left, *x + l.right);
+                // A line overlapping an area by a hair (rounding) doesn't count.
+                new.iter().any(|(r, ..)| b > r.y + 0.5 && t < r.bottom() - 0.5 && hi > r.x + 0.5 && lo < r.right() - 0.5)
+            })
+        });
+        if !covered {
+            return None;
+        }
+        self.tries += 1;
+        self.ahead.extend(new);
+        let force = pb.force_break;
+        if let Some((_, _, snap)) = &self.page {
+            snap.restore(pb, ctx);
+        }
+        pb.force_break = force;
+        pb.excl.extend(self.ahead.iter().cloned());
+        self.redo = Some((block, pages_before));
+        Some(first)
+    }
 }
 
 /// Pagination state saved before a block, to lay the blocks from there out again (balancing
@@ -3217,6 +3358,9 @@ fn place_objects(
     depth: usize,
 ) -> (Vec<Placed>, Vec<Placed>) {
     let (mut behind, mut front) = (Vec::new(), Vec::new());
+    // Each object's items in `behind` and `front` (start, end) with its stacking order, to draw
+    // overlapping objects in the order the file stacks them.
+    let mut stacks: Vec<(u64, (usize, usize), (usize, usize))> = Vec::new();
     let Some(fl) = pl.lines.get(l0) else { return (behind, front) };
     // Objects left out of the layout (hidden, or deleted in the final text) aren't placed.
     let left_out = left_out_objects(ctx.doc, p, at.table_chr, ctx.opts.show_hidden, ctx.hide_deleted);
@@ -3307,9 +3451,34 @@ fn place_objects(
                     pin.front.extend(f);
                 }
             }
+            let key = if !floating || float.z == 0 { u64::MAX } else { u64::from(float.z) };
+            stacks.push((key, (marks.0.min(behind.len()), behind.len()), (marks.1.min(front.len()), front.len())));
         }
     }
+    if stacks.windows(2).any(|w| w.first().map(|a| a.0) > w.get(1).map(|b| b.0)) {
+        behind = by_stack(behind, stacks.iter().map(|(k, b, _)| (*k, *b)));
+        front = by_stack(front, stacks.iter().map(|(k, _, f)| (*k, *f)));
+    }
     (behind, front)
+}
+
+/// `items` with the runs `ranges` (stacking key, start..end: each object's items, in order)
+/// reordered by key, lowest first, the order kept among equal keys and items outside them last.
+fn by_stack(items: Vec<Placed>, ranges: impl Iterator<Item = (u64, (usize, usize))>) -> Vec<Placed> {
+    let mut runs: Vec<(u64, usize, usize)> = ranges.filter(|(_, (a, b))| a < b).map(|(k, (a, b))| (k, a, b)).collect();
+    runs.sort_by_key(|r| r.0);
+    let n = items.len();
+    let mut slots: Vec<Option<Placed>> = items.into_iter().map(Some).collect();
+    let mut out = Vec::with_capacity(n);
+    for (_, a, b) in runs {
+        for s in slots.get_mut(a..b.min(n)).into_iter().flatten() {
+            if let Some(it) = s.take() {
+                out.push(it);
+            }
+        }
+    }
+    out.extend(slots.into_iter().flatten());
+    out
 }
 
 /// Footnotes referenced in a paragraph laid out as `pl`: in its text, and inside its text boxes
@@ -3437,7 +3606,7 @@ fn place_para_in_flow(ctx: &mut Ctx, pb: &mut PageBuilder, p: &Paragraph, block:
     let mut anchor_y = pb.y;
     let spot = |pb: &PageBuilder| (pb.pages.len(), pb.col);
     let placed_at = spot(pb);
-    let broke_before = pl.rp.page_break_before && !pb.at_top() && !pb.web;
+    let broke_before = (pl.rp.page_break_before || pb.force_break == Some(block)) && !pb.at_top() && !pb.web;
     if broke_before {
         pb.new_page(block, body_top);
     }
@@ -4588,6 +4757,8 @@ pub fn now_ms() -> f64 {
 mod tests;
 #[cfg(test)]
 mod tests_autospace;
+#[cfg(test)]
+mod tests_word_drawings;
 #[cfg(test)]
 mod tests_bidi;
 #[cfg(test)]

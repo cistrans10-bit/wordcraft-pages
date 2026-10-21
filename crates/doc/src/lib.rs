@@ -317,6 +317,10 @@ pub struct TextBody {
     /// styles or the document defaults keeps it (Word, observed with synthetic documents).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub auto_color: Option<props::Rgb>,
+    /// The text doesn't wrap at the box's sides (`wps:bodyPr wrap="none"`): each paragraph
+    /// stays on its lines, as long as they are, aligned in the box as usual.
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
+    pub no_wrap: bool,
 }
 
 /// Word's default text box margins (left, top, right, bottom), EMU: 0.1" and 0.05".
