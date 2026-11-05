@@ -525,6 +525,9 @@ pub struct WordApp {
     pub(crate) dialog_pick: Option<String>,
     /// macOS: the window has no title bar; leave room for the traffic lights.
     pub integrated_titlebar: bool,
+    /// Hosted inside another app's window (`wordcraft --embedded`): the host draws the title
+    /// bar and owns the window, so WordCraft's own title bar row is left out.
+    pub embedded: bool,
     /// macOS: the title bar's height and where its content starts, around the traffic lights.
     pub mac_titlebar: chrome::MacTitleBar,
     control_rx: Option<std::sync::mpsc::Receiver<ControlRequest>>,
@@ -667,6 +670,7 @@ impl WordApp {
             status_msg: None,
             previews: previews::Previews::default(),
             integrated_titlebar: false,
+            embedded: false,
             mac_titlebar: chrome::MacTitleBar::default(),
             control_rx: None,
             shot_token: 0,
@@ -2220,12 +2224,16 @@ impl WordApp {
             backstage::show(self, ui);
         } else if !self.has_document() {
             // No document open (#1129): the ribbon greyed out but for Help, and no page.
-            chrome::title_bar(self, ui);
+            if !self.embedded {
+                chrome::title_bar(self, ui);
+            }
             ribbon::show(self, ui);
             chrome::status_bar(self, ui);
             egui::CentralPanel::default().frame(egui::Frame::NONE.fill(t.canvas)).show(ui, |_| {});
         } else {
-            chrome::title_bar(self, ui);
+            if !self.embedded {
+                chrome::title_bar(self, ui);
+            }
             if !self.session.view.focus_mode {
                 ribbon::show(self, ui);
                 chrome::status_bar(self, ui);

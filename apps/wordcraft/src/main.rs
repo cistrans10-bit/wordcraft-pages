@@ -54,8 +54,11 @@ impl eframe::App for App {
             ctx.send_viewport_cmd(egui::ViewportCommand::InnerSize(size));
             ctx.send_viewport_cmd(egui::ViewportCommand::OuterPosition(pos));
         }
-        let prev = self.0.ui.window;
-        self.0.ui.window = ctx.input(|i| WindowGeometry::track(prev, i.viewport(), i.viewport_rect().size()));
+        // Embedded, the host decides the geometry: keep the standalone window's saved one.
+        if !self.0.embedded {
+            let prev = self.0.ui.window;
+            self.0.ui.window = ctx.input(|i| WindowGeometry::track(prev, i.viewport(), i.viewport_rect().size()));
+        }
         // The first frame, once the monitor is known (as `take_rescue` waits for): maximize a
         // window that opened at its normal size so it never flashed on screen half-opened.
         let maximize = self.1.and_then(|g| g.maximize_after_open()).filter(|_| ctx.input(|i| i.viewport().monitor_size.is_some()));
@@ -272,6 +275,9 @@ USAGE:
 OPTIONS:
   --sample            open the sample document
   --control PORT      start the localhost control server on PORT, for agents and scripts
+  --embedded          run inside a host app's window: no frame, no taskbar entry, no title bar
+                      row (the host draws one); the host reparents the window and drives it
+                      over --control
                       (or set WORDCRAFT_CONTROL_PORT); see docs/control-protocol.md
   --version           print the version
   -h, --help          print this help
@@ -323,6 +329,7 @@ fn main() -> eframe::Result {
     let mut control_port: Option<u16> = std::env::var("WORDCRAFT_CONTROL_PORT").ok().and_then(|p| p.parse().ok());
     let mut files = Vec::new();
     let mut sample = false;
+    let mut embedded = false;
     let (args, other_files) = text_args();
     let mut bad_control: Option<Option<String>> = None;
     let mut args = args.into_iter().peekable();
@@ -337,6 +344,7 @@ fn main() -> eframe::Result {
                 }
             }
             "--sample" => sample = true,
+            "--embedded" => embedded = true,
             "--version" => {
                 println!("wordcraft {} ({})", env!("CARGO_PKG_VERSION"), build_sha());
                 return Ok(());
@@ -393,9 +401,21 @@ fn main() -> eframe::Result {
     #[cfg(target_os = "macos")]
     graphics::configure_indirect_validation(&mut options, graphics::skips_indirect_validation(true, cfg!(target_arch = "x86_64")));
     load_user_fonts();
-    let restored = saved_window();
+    // Embedded: the host owns size and position, so the saved window geometry is not applied
+    // (nor saved over). The window opens off screen, framed by nothing, and stays out of the
+    // taskbar until the host moves it into its own window.
+    let restored = if embedded { None } else { saved_window() };
     if let Some(window) = restored {
         options.viewport = window.apply(options.viewport);
+    }
+    if embedded {
+        options.viewport = options
+            .viewport
+            .with_title("WordCraft (embedded)")
+            .with_decorations(false)
+            .with_taskbar(false)
+            .with_position([-32000.0, -32000.0])
+            .with_min_inner_size([1.0, 1.0]);
     }
     #[cfg(all(unix, not(target_os = "macos")))]
     // winit has no file drag-and-drop on Wayland (only on X11), so dropping files from the file
@@ -443,7 +463,8 @@ fn main() -> eframe::Result {
                 }
             }
             app.ui.window = restored;
-            app.integrated_titlebar = cfg!(target_os = "macos");
+            app.integrated_titlebar = cfg!(target_os = "macos") && !embedded;
+            app.embedded = embedded;
             #[cfg(target_os = "macos")]
             if let Some(bar) = traffic_lights::title_bar() {
                 log::info!("title bar: {bar:?}");
