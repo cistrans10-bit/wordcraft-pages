@@ -2705,3 +2705,13 @@
 	Paste Before	Beillesztés elé
 	Paste After	Beillesztés mögé
 	Drag a page to move it. Right-click for more.	Az oldalt húzással helyezheti át. További lehetőségekért kattintson a jobb gombbal.
+	A free, open-source word processor written from scratch in Rust, with the document as a PDF beside it.\nBased on WordCraft by the ArtCraft team; modified to add the PDF view and PDF opening.	Ingyenes, nyílt forráskódú szövegszerkesztő, a nulláról Rustban írva, a dokumentum PDF-változatával mellette.\nAz ArtCraft csapat WordCraft programján alapul; módosítva: PDF-nézet és PDF-megnyitás.
+	Based on: github.com/storytold/wordcraft	Alapja: github.com/storytold/wordcraft
+	DOCX	DOCX
+	DOCX + PDF	DOCX + PDF
+	PDF	PDF
+	Page 1 duplicated.	Az 1. oldal megkettőzve.
+	Source code: github.com/cistrans10-bit/wordcraft-pages	Forráskód: github.com/cistrans10-bit/wordcraft-pages
+	The document	A dokumentum
+	The document and its PDF side by side, page for page	A dokumentum és a PDF-je egymás mellett, oldalról oldalra
+	The document as a PDF	A dokumentum PDF-ként

@@ -62,11 +62,12 @@ pub mod ink;
 pub mod keys;
 pub mod keytips;
 pub mod mini_toolbar;
-pub mod page_pane;
 pub mod objects;
 pub mod options;
+pub mod page_pane;
 pub mod panes;
 pub mod paste_picture;
+pub mod pdf_view;
 pub mod previews;
 pub mod print_page;
 pub mod printing;
@@ -374,7 +375,7 @@ impl Default for UiState {
             legacy_dark: None,
             nav_tab: "headings".into(),
             nav_pane: false,
-            show_discord: true,
+            show_discord: false,
             author: String::new(),
             window: None,
             language: i18n::AUTO.into(),
@@ -528,6 +529,8 @@ pub struct WordApp {
     /// Hosted inside another app's window (`wordcraft --embedded`): the host draws the title
     /// bar and owns the window, so WordCraft's own title bar row is left out.
     pub embedded: bool,
+    /// The PDF view (DOCX + PDF side by side, or PDF alone): `pdf_view`.
+    pub pdf: pdf_view::PdfPane,
     /// macOS: the title bar's height and where its content starts, around the traffic lights.
     pub mac_titlebar: chrome::MacTitleBar,
     control_rx: Option<std::sync::mpsc::Receiver<ControlRequest>>,
@@ -671,6 +674,7 @@ impl WordApp {
             previews: previews::Previews::default(),
             integrated_titlebar: false,
             embedded: false,
+            pdf: pdf_view::PdfPane::default(),
             mac_titlebar: chrome::MacTitleBar::default(),
             control_rx: None,
             shot_token: 0,
@@ -1688,9 +1692,16 @@ impl WordApp {
                         .into(),
                 ));
             }
-            "ui.discord" => {
-                self.canvas.open_url = Some("https://discord.gg/artcraft".into());
-                json!({})
+            "ui.pdfView" => {
+                // DOCX · PDF · DOCX + PDF: `mode` "docx", "pdf" or "side"; no mode reads it (with
+                // the PDF's page count, the page in view, and whether it is the live export).
+                if let Some(m) = p.get("mode") {
+                    let Some(mode) = m.as_str().and_then(pdf_view::PdfMode::parse) else {
+                        return Some(Err("`mode` must be \"docx\", \"pdf\" or \"side\"".into()));
+                    };
+                    self.pdf.set_mode(mode);
+                }
+                self.pdf.info()
             }
             "ui.caretAnimation" => {
                 // File › Options › Advanced › Animation: `value` true or false turns the caret's
@@ -2234,14 +2245,27 @@ impl WordApp {
             if !self.embedded {
                 chrome::title_bar(self, ui);
             }
-            if !self.session.view.focus_mode {
-                ribbon::show(self, ui);
+            pdf_view::logic(self, &ctx);
+            if self.pdf.mode == pdf_view::PdfMode::Pdf {
+                // PDF: the document as a PDF in place of the page.
                 chrome::status_bar(self, ui);
-                panes::show(self, ui);
+                pdf_view::show_full(self, ui);
+            } else {
+                if !self.session.view.focus_mode {
+                    ribbon::show(self, ui);
+                    chrome::status_bar(self, ui);
+                }
+                // DOCX + PDF: the PDF on the right, the page on the left.
+                if self.pdf.mode == pdf_view::PdfMode::Side {
+                    pdf_view::show_side(self, ui);
+                }
+                if !self.session.view.focus_mode {
+                    panes::show(self, ui);
+                }
+                egui::CentralPanel::default().frame(egui::Frame::NONE.fill(t.canvas)).show(ui, |ui| {
+                    canvas::show(self, ui);
+                });
             }
-            egui::CentralPanel::default().frame(egui::Frame::NONE.fill(t.canvas)).show(ui, |ui| {
-                canvas::show(self, ui);
-            });
         }
         content_controls::popup(self, &ctx);
         dialogs::show(self, &ctx);
@@ -2627,7 +2651,6 @@ pub(crate) fn works_without_document(id: &str) -> bool {
             | "ui.openFileDialog"
             | "ui.fileBrowser"
             | "ui.makeDefaultApp"
-            | "ui.discord"
             | "ui.caretAnimation"
             | "ui.startScreen"
     ) || id.starts_with("help.")
@@ -2987,7 +3010,7 @@ mod tests {
         for id in ["format.bold", "text.insert", "file.save", "file.saveAs", "file.print", "edit.paste", "insert.table", "ui.print"] {
             assert!(!widgets::enabled(a, id), "{id} is off with no document");
         }
-        for id in ["file.new", "file.open", "ui.backstage", "ui.tab", "ui.discord", "file.options", "ui.theme"] {
+        for id in ["file.new", "file.open", "ui.backstage", "ui.tab", "file.options", "ui.theme"] {
             assert!(widgets::enabled(a, id), "{id} works with no document");
         }
         assert!(!chrome::qat_enabled(a, "file.save"));
@@ -5355,7 +5378,7 @@ mod tests {
                 a,
             );
             h.run_steps(4);
-            assert!(h.query_by_label("Show the community button in the title bar").is_some(), "hook {hook}: the Options page rendered");
+            assert!(h.query_by_label("Dark page (white text on black)").is_some(), "hook {hook}: the Options page rendered");
             assert_eq!(h.query_by_label(LABEL).is_some(), hook, "hook {hook}: the button");
             if hook {
                 h.get_by_label(LABEL).click();

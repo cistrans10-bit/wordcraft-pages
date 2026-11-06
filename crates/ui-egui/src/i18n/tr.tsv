@@ -2706,3 +2706,13 @@ preview	Title	Örnek
 	Paste Before	Önüne Yapıştır
 	Paste After	Arkasına Yapıştır
 	Drag a page to move it. Right-click for more.	Bir sayfayı taşımak için sürükleyin. Daha fazlası için sağ tıklayın.
+	A free, open-source word processor written from scratch in Rust, with the document as a PDF beside it.\nBased on WordCraft by the ArtCraft team; modified to add the PDF view and PDF opening.	Rust ile sıfırdan yazılmış, belgenin PDF'i yanında duran ücretsiz, açık kaynaklı bir kelime işlemci.\nArtCraft ekibinin WordCraft'ına dayanır; PDF görünümü ve PDF açma eklenerek değiştirilmiştir.
+	Based on: github.com/storytold/wordcraft	Temeli: github.com/storytold/wordcraft
+	DOCX	DOCX
+	DOCX + PDF	DOCX + PDF
+	PDF	PDF
+	Page 1 duplicated.	Sayfa 1 çoğaltıldı.
+	Source code: github.com/cistrans10-bit/wordcraft-pages	Kaynak kodu: github.com/cistrans10-bit/wordcraft-pages
+	The document	Belge
+	The document and its PDF side by side, page for page	Belge ve PDF'i yan yana, sayfa sayfa
+	The document as a PDF	Belge PDF olarak

@@ -2707,3 +2707,13 @@ preview	Title	Пример
 	Paste Before	Вставить перед
 	Paste After	Вставить после
 	Drag a page to move it. Right-click for more.	Перетащите страницу, чтобы переместить её. Щёлкните правой кнопкой для других действий.
+	A free, open-source word processor written from scratch in Rust, with the document as a PDF beside it.\nBased on WordCraft by the ArtCraft team; modified to add the PDF view and PDF opening.	Бесплатный текстовый процессор с открытым кодом, написанный с нуля на Rust, с PDF-версией документа рядом.\nОснован на WordCraft от команды ArtCraft; изменён: добавлены просмотр PDF и открытие PDF.
+	Based on: github.com/storytold/wordcraft	Основан на: github.com/storytold/wordcraft
+	DOCX	DOCX
+	DOCX + PDF	DOCX + PDF
+	PDF	PDF
+	Page 1 duplicated.	Страница 1 продублирована.
+	Source code: github.com/cistrans10-bit/wordcraft-pages	Исходный код: github.com/cistrans10-bit/wordcraft-pages
+	The document	Документ
+	The document and its PDF side by side, page for page	Документ и его PDF рядом, страница к странице
+	The document as a PDF	Документ в виде PDF

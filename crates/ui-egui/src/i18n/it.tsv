@@ -2718,3 +2718,13 @@ preview	Title	Esempio
 	Paste Before	Incolla prima
 	Paste After	Incolla dopo
 	Drag a page to move it. Right-click for more.	Trascina una pagina per spostarla. Fai clic con il pulsante destro per altre opzioni.
+	A free, open-source word processor written from scratch in Rust, with the document as a PDF beside it.\nBased on WordCraft by the ArtCraft team; modified to add the PDF view and PDF opening.	Un elaboratore di testi gratuito e open source, scritto da zero in Rust, con il PDF del documento accanto.\nBasato su WordCraft del team ArtCraft; modificato per aggiungere la vista PDF e l'apertura dei PDF.
+	Based on: github.com/storytold/wordcraft	Basato su: github.com/storytold/wordcraft
+	DOCX	DOCX
+	DOCX + PDF	DOCX + PDF
+	PDF	PDF
+	Page 1 duplicated.	Pagina 1 duplicata.
+	Source code: github.com/cistrans10-bit/wordcraft-pages	Codice sorgente: github.com/cistrans10-bit/wordcraft-pages
+	The document	Il documento
+	The document and its PDF side by side, page for page	Il documento e il suo PDF affiancati, pagina per pagina
+	The document as a PDF	Il documento come PDF

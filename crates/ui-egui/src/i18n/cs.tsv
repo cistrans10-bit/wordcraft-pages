@@ -2701,3 +2701,13 @@ preview	Title	Ukázka
 	Paste Before	Vložit před
 	Paste After	Vložit za
 	Drag a page to move it. Right-click for more.	Přetažením stránku přesunete. Další možnosti zobrazíte kliknutím pravým tlačítkem.
+	A free, open-source word processor written from scratch in Rust, with the document as a PDF beside it.\nBased on WordCraft by the ArtCraft team; modified to add the PDF view and PDF opening.	Bezplatný textový editor s otevřeným kódem, napsaný od nuly v Rustu, s PDF dokumentu vedle.\nZaložený na WordCraftu od týmu ArtCraft; upravený o zobrazení PDF a otevírání PDF.
+	Based on: github.com/storytold/wordcraft	Založeno na: github.com/storytold/wordcraft
+	DOCX	DOCX
+	DOCX + PDF	DOCX + PDF
+	PDF	PDF
+	Page 1 duplicated.	Stránka 1 duplikována.
+	Source code: github.com/cistrans10-bit/wordcraft-pages	Zdrojový kód: github.com/cistrans10-bit/wordcraft-pages
+	The document	Dokument
+	The document and its PDF side by side, page for page	Dokument a jeho PDF vedle sebe, stránku po stránce
+	The document as a PDF	Dokument jako PDF

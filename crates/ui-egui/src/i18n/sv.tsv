@@ -2724,3 +2724,13 @@ preview	Title	Titel
 	Paste Before	Klistra in före
 	Paste After	Klistra in efter
 	Drag a page to move it. Right-click for more.	Dra en sida för att flytta den. Högerklicka för fler alternativ.
+	A free, open-source word processor written from scratch in Rust, with the document as a PDF beside it.\nBased on WordCraft by the ArtCraft team; modified to add the PDF view and PDF opening.	En gratis ordbehandlare med öppen källkod, skriven från grunden i Rust, med dokumentets PDF bredvid.\nBaserad på WordCraft av ArtCraft-teamet; ändrad med PDF-vy och öppning av PDF-filer.
+	Based on: github.com/storytold/wordcraft	Baserad på: github.com/storytold/wordcraft
+	DOCX	DOCX
+	DOCX + PDF	DOCX + PDF
+	PDF	PDF
+	Page 1 duplicated.	Sida 1 duplicerad.
+	Source code: github.com/cistrans10-bit/wordcraft-pages	Källkod: github.com/cistrans10-bit/wordcraft-pages
+	The document	Dokumentet
+	The document and its PDF side by side, page for page	Dokumentet och dess PDF sida vid sida, sida för sida
+	The document as a PDF	Dokumentet som PDF

@@ -33,6 +33,7 @@ pub use session::{
 pub use wordcraft_doc as doc;
 pub use wordcraft_geom::Region;
 pub use wordcraft_layout as layout;
+pub use wordcraft_pdfread as pdfread;
 pub use wordcraft_proof as proof;
 pub use wordcraft_render as render;
 
@@ -171,6 +172,8 @@ mod tests;
 mod tests_bidi;
 #[cfg(test)]
 mod tests_fonts;
+#[cfg(test)]
+mod tests_pdf;
 #[cfg(test)]
 mod tests_revision_checks;
 #[cfg(test)]

@@ -130,7 +130,7 @@ pub struct CanvasState {
     pub(crate) scroll_offset: egui::Vec2,
     scroll_max: egui::Vec2,
     /// Explicit page turn to apply on the next frame (reading navigation buttons/keys).
-    scroll_request: Option<egui::Vec2>,
+    pub(crate) scroll_request: Option<egui::Vec2>,
     /// The viewport (the content's visible rect on screen) at the end of last frame; the
     /// drag-select edge auto-scroll decides this frame's scroll from it (#688).
     pub(crate) viewport: Option<egui::Rect>,

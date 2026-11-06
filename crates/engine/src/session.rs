@@ -360,6 +360,13 @@ pub struct Session {
     /// Name given to a document not saved yet (File › Info › Rename): what Save suggests. A file
     /// name, not document metadata, so it is not part of the document or its undo history.
     pub file_name: Option<String>,
+    /// The PDF the document was converted from, when it was opened from one (File › Open of a
+    /// .pdf): the PDF view shows it until the document is first edited, and from then on the
+    /// document's own export. Cleared when another document replaces this one.
+    pub pdf_source: Option<std::sync::Arc<Vec<u8>>>,
+    /// The revision ([`Session::rev`]) the document had when it was converted from
+    /// [`Self::pdf_source`]: while it still has it, the PDF shows the document as it is.
+    pub pdf_source_rev: u64,
     pub dirty: bool,
     /// Where the custom dictionary is kept on disk, if the host wired one up. Only the desktop
     /// app does: headless sessions (MCP, `wordcraft-cli run`), tests and the web build leave
@@ -637,6 +644,8 @@ impl Session {
             pending: None,
             path: None,
             file_name: None,
+            pdf_source: None,
+            pdf_source_rev: 0,
             user_dict_path: None,
             dirty: false,
             clipboard: None,
@@ -1113,6 +1122,7 @@ impl Session {
         self.doc.ensure_nonempty();
         self.password = None;
         self.file_name = None;
+        self.pdf_source = None;
         self.sel = Selection::caret(self.doc.start_of(StoryRef::Body));
         self.pending = None;
         self.typing = None;
@@ -1154,6 +1164,8 @@ impl Session {
             pending: _,
             path: _,
             file_name: _,
+            pdf_source: _,
+            pdf_source_rev: _,
             // The custom dictionary file, like the file path: host wiring, not an edit.
             user_dict_path: _,
             dirty,

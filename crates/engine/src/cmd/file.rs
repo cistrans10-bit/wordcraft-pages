@@ -237,6 +237,18 @@ fn open(s: &mut Session, v: &Value) -> CmdResult {
         super::view::restore_zoom(s, z);
     }
     s.path = Some(path.into());
+    // A PDF opens as a converted copy, like Word's: it saves as a Word document named after the
+    // PDF (Save asks where), never over the PDF, and the PDF itself stays at hand for the PDF view.
+    if crate::io::is_pdf_path(path) {
+        s.path = None;
+        s.file_name = std::path::Path::new(path).file_stem().and_then(|n| n.to_str()).map(str::to_string);
+        let bytes = match p::str(v, "data") {
+            Some(data) => super::insert::base64_decode(data),
+            None => crate::io::read_file(path).ok(),
+        };
+        s.pdf_source = bytes.map(std::sync::Arc::new);
+        s.pdf_source_rev = s.rev();
+    }
     // Like Word, a document opened with a password is saved with it again.
     if encrypted {
         s.password = password.map(crate::io::Password::new);

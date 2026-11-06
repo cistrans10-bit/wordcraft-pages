@@ -2709,3 +2709,13 @@ preview	Title	Naslov
 	Paste Before	Zalijepi ispred
 	Paste After	Zalijepi iza
 	Drag a page to move it. Right-click for more.	Povucite stranicu da biste je premjestili. Desnom tipkom miša otvorite dodatne mogućnosti.
+	A free, open-source word processor written from scratch in Rust, with the document as a PDF beside it.\nBased on WordCraft by the ArtCraft team; modified to add the PDF view and PDF opening.	Besplatan program za obradu teksta otvorenog koda, napisan od nule u Rustu, s PDF-om dokumenta pokraj njega.\nTemelji se na WordCraftu tima ArtCraft; izmijenjen: dodani PDF prikaz i otvaranje PDF-a.
+	Based on: github.com/storytold/wordcraft	Temelji se na: github.com/storytold/wordcraft
+	DOCX	DOCX
+	DOCX + PDF	DOCX + PDF
+	PDF	PDF
+	Page 1 duplicated.	Stranica 1 je udvostručena.
+	Source code: github.com/cistrans10-bit/wordcraft-pages	Izvorni kod: github.com/cistrans10-bit/wordcraft-pages
+	The document	Dokument
+	The document and its PDF side by side, page for page	Dokument i njegov PDF jedan pokraj drugoga, stranicu po stranicu
+	The document as a PDF	Dokument kao PDF

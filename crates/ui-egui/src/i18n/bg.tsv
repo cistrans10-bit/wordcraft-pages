@@ -2698,3 +2698,13 @@
 	Paste Before	Поставяне преди
 	Paste After	Поставяне след
 	Drag a page to move it. Right-click for more.	Плъзнете страница, за да я преместите. Щракнете с десния бутон за още.
+	A free, open-source word processor written from scratch in Rust, with the document as a PDF beside it.\nBased on WordCraft by the ArtCraft team; modified to add the PDF view and PDF opening.	Безплатен текстов редактор с отворен код, написан от нулата на Rust, с PDF версия на документа до него.\nБазиран на WordCraft от екипа на ArtCraft; променен: добавени изглед на PDF и отваряне на PDF.
+	Based on: github.com/storytold/wordcraft	Базиран на: github.com/storytold/wordcraft
+	DOCX	DOCX
+	DOCX + PDF	DOCX + PDF
+	PDF	PDF
+	Page 1 duplicated.	Страница 1 е дублирана.
+	Source code: github.com/cistrans10-bit/wordcraft-pages	Изходен код: github.com/cistrans10-bit/wordcraft-pages
+	The document	Документът
+	The document and its PDF side by side, page for page	Документът и неговият PDF един до друг, страница по страница
+	The document as a PDF	Документът като PDF

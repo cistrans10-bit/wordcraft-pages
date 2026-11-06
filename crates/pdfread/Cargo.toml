@@ -1,0 +1,19 @@
+[package]
+name = "wordcraft-pdfread"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "WordCraft PDF reading: page rendering for the PDF view, and PDF → Word document conversion"
+
+[lints]
+workspace = true
+
+[dependencies]
+wordcraft-fonts = { workspace = true }
+# Pure-Rust PDF parsing, interpretation and rasterisation (MIT OR Apache-2.0). Fonts come from
+# WordCraft's own font database (`fonts.rs`), not hayro's embedded set; the predefined CMaps
+# (CJK encodings) are data hayro embeds.
+hayro = { workspace = true }
+image = { workspace = true }
+zip = { workspace = true }
+log = { workspace = true }

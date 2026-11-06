@@ -2749,3 +2749,13 @@ template	Letter	Thư
 	Paste Before	Dán trước
 	Paste After	Dán sau
 	Drag a page to move it. Right-click for more.	Kéo một trang để di chuyển. Bấm chuột phải để xem thêm.
+	A free, open-source word processor written from scratch in Rust, with the document as a PDF beside it.\nBased on WordCraft by the ArtCraft team; modified to add the PDF view and PDF opening.	Trình soạn thảo văn bản miễn phí, mã nguồn mở, viết từ đầu bằng Rust, có bản PDF của tài liệu bên cạnh.\nDựa trên WordCraft của nhóm ArtCraft; đã sửa đổi để thêm chế độ xem PDF và mở PDF.
+	Based on: github.com/storytold/wordcraft	Dựa trên: github.com/storytold/wordcraft
+	DOCX	DOCX
+	DOCX + PDF	DOCX + PDF
+	PDF	PDF
+	Page 1 duplicated.	Đã nhân bản trang 1.
+	Source code: github.com/cistrans10-bit/wordcraft-pages	Mã nguồn: github.com/cistrans10-bit/wordcraft-pages
+	The document	Tài liệu
+	The document and its PDF side by side, page for page	Tài liệu và PDF của nó cạnh nhau, từng trang
+	The document as a PDF	Tài liệu dưới dạng PDF

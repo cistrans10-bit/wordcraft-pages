@@ -26,6 +26,8 @@ pub const OPEN_EXTS: &[&str] = &[
     "xml",
     "wcraft.json",
     "json",
+    // A PDF opens converted into an editable document, page for page (`wordcraft_pdfread`).
+    "pdf",
 ];
 /// Formats WordCraft saves (Save As).
 pub const SAVE_EXTS: &[&str] = &["docx", "docm", "dotx", "dotm", "pdf", "txt", "md", "html", "rtf", "odt", "tex", "png", "json", "xml"];
@@ -204,6 +206,7 @@ fn read_bytes(name: &str, bytes: &[u8], password: Option<&str>, page: &wordcraft
             d.normalize_runs();
             d
         }
+        "pdf" => pdf_document(name, bytes)?,
         other => match crate::io_ext::open(other, bytes, page) {
             Some(r) => r?,
             None => return open_by_content(name, other, bytes, password, page),
@@ -321,6 +324,20 @@ fn looks_like_web_page(bytes: &[u8]) -> bool {
 /// XML Document by its root element, a web page under a Word or RTF name as one
 /// (#2853), any other text through the plain-text import with encoding detection (#569).
 /// Anything else is refused with a clear error rather than shown as garbage.
+/// A PDF as an editable document: converted page for page (every page one section of its size,
+/// text as paragraphs at their places, pictures and drawing anchored to the page), then read as
+/// the Word document that makes.
+fn pdf_document(name: &str, bytes: &[u8]) -> Result<Document, String> {
+    let docx = wordcraft_pdfread::to_docx(bytes).map_err(|e| format!("{name}: {e}"))?;
+    wordcraft_docx::read(&docx).map_err(|e| format!("{name}: {e}"))
+}
+
+/// Is `path` a PDF (by its extension)? Such a document is a converted copy: it saves as a Word
+/// document, not over the PDF.
+pub fn is_pdf_path(path: &str) -> bool {
+    ext_of(path) == "pdf"
+}
+
 fn open_by_content(
     name: &str,
     ext: &str,
@@ -339,6 +356,8 @@ fn open_by_content(
         (wordcraft_formats::rtf::import(bytes)?, false)
     } else if is_word_xml(bytes) {
         (wordcraft_docx::read_xml(bytes).map_err(|e| format!("{name}: {e}"))?, false)
+    } else if wordcraft_pdfread::is_pdf(bytes) {
+        (pdf_document(name, bytes)?, false)
     } else if matches!(ext, "doc" | "dot" | "docx" | "docm" | "dotx" | "dotm" | "rtf") && looks_like_web_page(bytes) {
         let opened = crate::io_ext::open("html", bytes, page).unwrap_or_else(|| Err(format!("{name}: can't open web pages")));
         (opened?, false)
