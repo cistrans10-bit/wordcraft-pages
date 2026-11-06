@@ -30,6 +30,7 @@ pub mod options;
 pub mod outline;
 pub mod page;
 pub mod pages;
+pub mod pdf;
 pub mod para;
 pub mod paste;
 pub mod phonetic;
@@ -83,6 +84,7 @@ pub fn registry() -> Registry {
     v.extend(table_mouse::specs());
     v.extend(review::specs());
     v.extend(file::specs());
+    v.extend(pdf::specs());
     v.extend(options::specs());
     v.extend(design::specs());
     v.extend(references::specs());

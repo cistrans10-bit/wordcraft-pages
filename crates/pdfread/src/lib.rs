@@ -20,6 +20,28 @@ mod view;
 pub use convert::to_docx;
 pub use view::{PageImage, PdfView};
 
+/// A line of a page's text (one segment of it: a table cell or column is its own line), in page
+/// display coordinates: points from the top left of the page as shown (rotation applied).
+#[derive(Debug, Clone, PartialEq)]
+pub struct TextLine {
+    pub text: String,
+    /// The line's box (left, top, width, height) and its baseline.
+    pub x: f32,
+    pub y: f32,
+    pub w: f32,
+    pub h: f32,
+    pub base: f32,
+    /// The size, font family, weight, slant and colour of its first word, as the document shows
+    /// them (a font the reader lacks is sized like the original).
+    pub size: f32,
+    pub font: String,
+    pub bold: bool,
+    pub italic: bool,
+    pub color: [u8; 3],
+    /// Each word's left and right edge, for finding where a match sits in the line.
+    pub word_spans: Vec<(f32, f32)>,
+}
+
 /// Pages read from one PDF, at most (a larger file opens its first pages).
 pub const MAX_PAGES: usize = 5000;
 

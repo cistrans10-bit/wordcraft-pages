@@ -2711,3 +2711,84 @@ preview	Title	Ukázka
 	The document	Dokument
 	The document and its PDF side by side, page for page	Dokument a jeho PDF vedle sebe, stránku po stránce
 	The document as a PDF	Dokument jako PDF
+	Angle	Úhel
+	Black out part of the page for good: the text, pictures and drawing under it are removed when the page is saved	Trvale začerní část stránky: text, obrázky a kresby pod ní se při uložení odstraní
+	Bottom Center	Dole uprostřed
+	Bottom Left	Dole vlevo
+	Bottom Right	Dole vpravo
+	Change Mark	Změnit značku
+	Click a line of the PDF's text to change it, in a matching font	Klikněte na řádek textu PDF a změňte ho odpovídajícím písmem
+	Click or drag to stamp	Klikněte nebo táhněte pro razítko
+	Click or drag, then pick a picture	Klikněte nebo táhněte a pak vyberte obrázek
+	Click to add a note	Kliknutím přidáte poznámku
+	Compress	Komprimovat
+	Copied	Zkopírováno
+	Copied the PDF's text	Text PDF zkopírován
+	Copy All Text	Kopírovat veškerý text
+	Cover part of the page with white	Zakrýt část stránky bílou
+	Delete Mark	Odstranit značku
+	Drag a box and type; the text fits the box as you resize it	Táhněte rámeček a pište; text se při změně velikosti rámečku přizpůsobí
+	Drag on the page	Táhněte po stránce
+	Drag over text	Táhněte přes text
+	Drag the part of the page to keep	Táhnutím vyberte část stránky, která zůstane
+	Draw Signature…	Nakreslit podpis…
+	Draw freehand	Kreslit od ruky
+	Draw your signature	Nakreslete svůj podpis
+	Draw your signature once, then click or drag to sign	Nakreslete podpis jednou, pak klikněte nebo táhněte pro podepsání
+	Edit Text	Upravit text
+	Every page becomes a picture: nothing on it can be changed or copied	Každá stránka se stane obrázkem: nic na ní nelze změnit ani zkopírovat
+	Export PDF…	Exportovat PDF…
+	Export Pages as Images	Exportovat stránky jako obrázky
+	Export Pages as Images…	Exportovat stránky jako obrázky…
+	Extract Pages	Extrahovat stránky
+	Extract Page…	Extrahovat stránku…
+	Find in PDF	Najít v PDF
+	Fit text to box	Přizpůsobit text rámečku
+	Fit the page	Přizpůsobit stránku
+	Flatten (every page becomes a picture)	Sloučit (každá stránka se stane obrázkem)
+	Form Fields	Pole formuláře
+	Header, Footer and Page Numbers…	Záhlaví, zápatí a čísla stránek…
+	Insert Pages from PDF	Vložit stránky z PDF
+	Insert Pages from PDF…	Vložit stránky z PDF…
+	Making the PDF…	Vytváření PDF…
+	Mark Up	Označit
+	More Colors	Další barvy
+	No choices	Žádné možnosti
+	No matches	Žádné shody
+	No text there to edit: use Text Box to add some	Zde není text k úpravě: text přidáte pomocí textového pole
+	Note	Poznámka
+	PDF Edits	Úpravy PDF
+	PDF · as opened	PDF · jak bylo otevřeno
+	PDF · updates as you edit	PDF · aktualizuje se při úpravách
+	Page actions	Akce stránky
+	Page {n} of {N}	Stránka {n} z {N}
+	Pages Panel	Panel stránek
+	Pages per file	Stránek na soubor
+	Properties…	Vlastnosti…
+	Redact	Začernit
+	Reenter password	Zadejte heslo znovu
+	Resolution	Rozlišení
+	Save Flattened…	Uložit sloučené…
+	Save PDF	Uložit PDF
+	Save PDF As…	Uložit PDF jako…
+	Save the document as a PDF	Uložit dokument jako PDF
+	Save with Password	Uložit s heslem
+	Save with Password…	Uložit s heslem…
+	Saved {path}	Uloženo {path}
+	Select, move and resize marks; drag over text to select it; fill in form fields	Vybírejte, přesouvejte a měňte velikost značek; tažením přes text ho vyberete; vyplňujte pole formulářů
+	Signature	Podpis
+	Split…	Rozdělit…
+	Stamp	Razítko
+	The PDF view stopped working; restart WordCraft to bring it back.	Zobrazení PDF přestalo fungovat; restartujte WordCraft, abyste ho obnovili.
+	The font size follows the box: resize it and the text grows or shrinks to fill it	Velikost písma sleduje rámeček: změňte jeho velikost a text se zvětší nebo zmenší, aby ho vyplnil
+	The parts are saved next to the file you name, numbered	Části se uloží vedle souboru, který zadáte, očíslované
+	The passwords don't match	Hesla se neshodují
+	Top Center	Nahoře uprostřed
+	Top Left	Nahoře vlevo
+	Top Right	Nahoře vpravo
+	Type here	Pište sem
+	Watermark…	Vodoznak…
+	Whiteout	Zabělení
+	Wrote {n} files	Zapsáno souborů: {n}
+	{i} of {n}	{i} z {n}
+	{n} is the page number, {N} the number of pages	{n} je číslo stránky, {N} počet stránek

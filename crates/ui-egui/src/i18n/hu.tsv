@@ -2715,3 +2715,84 @@
 	The document	A dokumentum
 	The document and its PDF side by side, page for page	A dokumentum és a PDF-je egymás mellett, oldalról oldalra
 	The document as a PDF	A dokumentum PDF-ként
+	Angle	Szög
+	Black out part of the page for good: the text, pictures and drawing under it are removed when the page is saved	Az oldal egy részének végleges kitakarása: az alatta lévő szöveg, képek és rajzok mentéskor törlődnek
+	Bottom Center	Lent középen
+	Bottom Left	Lent balra
+	Bottom Right	Lent jobbra
+	Change Mark	Jelölés módosítása
+	Click a line of the PDF's text to change it, in a matching font	Kattintson a PDF egy szövegsorára a módosításához, egyező betűtípussal
+	Click or drag to stamp	Kattintson vagy húzzon a bélyegzéshez
+	Click or drag, then pick a picture	Kattintson vagy húzzon, majd válasszon képet
+	Click to add a note	Kattintson jegyzet hozzáadásához
+	Compress	Tömörítés
+	Copied	Másolva
+	Copied the PDF's text	A PDF szövege vágólapra másolva
+	Copy All Text	Teljes szöveg másolása
+	Cover part of the page with white	Az oldal egy részének lefedése fehérrel
+	Delete Mark	Jelölés törlése
+	Drag a box and type; the text fits the box as you resize it	Húzzon egy keretet, és gépeljen; a szöveg átméretezéskor kitölti a keretet
+	Drag on the page	Húzzon az oldalon
+	Drag over text	Húzzon a szöveg fölött
+	Drag the part of the page to keep	Jelölje ki húzással az oldal megtartandó részét
+	Draw Signature…	Aláírás rajzolása…
+	Draw freehand	Szabadkézi rajz
+	Draw your signature	Rajzolja meg az aláírását
+	Draw your signature once, then click or drag to sign	Rajzolja meg egyszer az aláírását, majd kattintson vagy húzzon az aláíráshoz
+	Edit Text	Szöveg szerkesztése
+	Every page becomes a picture: nothing on it can be changed or copied	Minden oldal képpé alakul: semmi sem módosítható vagy másolható rajta
+	Export PDF…	PDF exportálása…
+	Export Pages as Images	Oldalak exportálása képként
+	Export Pages as Images…	Oldalak exportálása képként…
+	Extract Pages	Oldalak kinyerése
+	Extract Page…	Oldal kinyerése…
+	Find in PDF	Keresés a PDF-ben
+	Fit text to box	Szöveg igazítása a kerethez
+	Fit the page	Oldal kitöltése
+	Flatten (every page becomes a picture)	Egyesítés (minden oldal képpé alakul)
+	Form Fields	Űrlapmezők
+	Header, Footer and Page Numbers…	Élőfej, élőláb és oldalszámok…
+	Insert Pages from PDF	Oldalak beszúrása PDF-ből
+	Insert Pages from PDF…	Oldalak beszúrása PDF-ből…
+	Making the PDF…	PDF készítése…
+	Mark Up	Jelölések
+	More Colors	További színek
+	No choices	Nincsenek választási lehetőségek
+	No matches	Nincs találat
+	No text there to edit: use Text Box to add some	Itt nincs szerkeszthető szöveg: szöveg hozzáadásához használja a Szövegdobozt
+	Note	Jegyzet
+	PDF Edits	PDF-módosítások
+	PDF · as opened	PDF · megnyitott állapot
+	PDF · updates as you edit	PDF · szerkesztés közben frissül
+	Page actions	Oldalműveletek
+	Page {n} of {N}	{n}. oldal / {N}
+	Pages Panel	Oldalak panel
+	Pages per file	Oldalak fájlonként
+	Properties…	Tulajdonságok…
+	Redact	Kitakarás
+	Reenter password	Jelszó újra
+	Resolution	Felbontás
+	Save Flattened…	Mentés egyesítve…
+	Save PDF	PDF mentése
+	Save PDF As…	PDF mentése másként…
+	Save the document as a PDF	A dokumentum mentése PDF-ként
+	Save with Password	Mentés jelszóval
+	Save with Password…	Mentés jelszóval…
+	Saved {path}	Mentve: {path}
+	Select, move and resize marks; drag over text to select it; fill in form fields	Jelölések kijelölése, mozgatása és átméretezése; húzzon a szöveg fölött a kijelöléséhez; űrlapmezők kitöltése
+	Signature	Aláírás
+	Split…	Felosztás…
+	Stamp	Bélyegző
+	The PDF view stopped working; restart WordCraft to bring it back.	A PDF-nézet leállt; indítsa újra a WordCraftot a visszaállításához.
+	The font size follows the box: resize it and the text grows or shrinks to fill it	A betűméret követi a keretet: átméretezéskor a szöveg nő vagy zsugorodik, hogy kitöltse
+	The parts are saved next to the file you name, numbered	A részek a megadott fájl mellé kerülnek, sorszámozva
+	The passwords don't match	A jelszavak nem egyeznek
+	Top Center	Fent középen
+	Top Left	Fent balra
+	Top Right	Fent jobbra
+	Type here	Írjon ide
+	Watermark…	Vízjel…
+	Whiteout	Kifehérítés
+	Wrote {n} files	{n} fájl kiírva
+	{i} of {n}	{i} / {n}
+	{n} is the page number, {N} the number of pages	{n} az oldalszám, {N} az oldalak száma

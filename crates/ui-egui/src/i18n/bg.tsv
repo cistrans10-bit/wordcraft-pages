@@ -2708,3 +2708,84 @@
 	The document	Документът
 	The document and its PDF side by side, page for page	Документът и неговият PDF един до друг, страница по страница
 	The document as a PDF	Документът като PDF
+	Angle	Ъгъл
+	Black out part of the page for good: the text, pictures and drawing under it are removed when the page is saved	Затъмняване на част от страницата завинаги: текстът, картините и графиката под нея се премахват при записване
+	Bottom Center	Долу в средата
+	Bottom Left	Долу вляво
+	Bottom Right	Долу вдясно
+	Change Mark	Промяна на маркировка
+	Click a line of the PDF's text to change it, in a matching font	Щракнете върху ред от текста на PDF, за да го промените със съответстващ шрифт
+	Click or drag to stamp	Щракнете или плъзнете, за да поставите щемпел
+	Click or drag, then pick a picture	Щракнете или плъзнете, след което изберете картина
+	Click to add a note	Щракнете, за да добавите бележка
+	Compress	Компресиране
+	Copied	Копирано
+	Copied the PDF's text	Текстът на PDF е копиран
+	Copy All Text	Копиране на целия текст
+	Cover part of the page with white	Покриване на част от страницата с бяло
+	Delete Mark	Изтриване на маркировка
+	Drag a box and type; the text fits the box as you resize it	Плъзнете поле и въведете текст; текстът запълва полето, докато го преоразмерявате
+	Drag on the page	Плъзнете върху страницата
+	Drag over text	Плъзнете върху текста
+	Drag the part of the page to keep	Плъзнете частта от страницата, която да остане
+	Draw Signature…	Рисуване на подпис…
+	Draw freehand	Свободно рисуване
+	Draw your signature	Нарисувайте подписа си
+	Draw your signature once, then click or drag to sign	Нарисувайте подписа си веднъж, след това щракнете или плъзнете, за да подпишете
+	Edit Text	Редактиране на текст
+	Every page becomes a picture: nothing on it can be changed or copied	Всяка страница става картина: нищо по нея не може да се променя или копира
+	Export PDF…	Експортиране като PDF…
+	Export Pages as Images	Експортиране на страници като изображения
+	Export Pages as Images…	Експортиране на страници като изображения…
+	Extract Pages	Извличане на страници
+	Extract Page…	Извличане на страница…
+	Find in PDF	Търсене в PDF
+	Fit text to box	Побиране на текста в полето
+	Fit the page	Побиране на страницата
+	Flatten (every page becomes a picture)	Изравняване (всяка страница става картина)
+	Form Fields	Полета на формуляр
+	Header, Footer and Page Numbers…	Горен и долен колонтитул и номера на страници…
+	Insert Pages from PDF	Вмъкване на страници от PDF
+	Insert Pages from PDF…	Вмъкване на страници от PDF…
+	Making the PDF…	Създаване на PDF…
+	Mark Up	Маркиране
+	More Colors	Още цветове
+	No choices	Няма възможности за избор
+	No matches	Няма съвпадения
+	No text there to edit: use Text Box to add some	Тук няма текст за редактиране: използвайте „Текстово поле“, за да добавите
+	Note	Бележка
+	PDF Edits	Промени в PDF
+	PDF · as opened	PDF · както е отворен
+	PDF · updates as you edit	PDF · обновява се при редактиране
+	Page actions	Действия със страницата
+	Page {n} of {N}	Страница {n} от {N}
+	Pages Panel	Екран „Страници“
+	Pages per file	Страници на файл
+	Properties…	Свойства…
+	Redact	Заличаване
+	Reenter password	Въведете отново паролата
+	Resolution	Разделителна способност
+	Save Flattened…	Записване изравнен…
+	Save PDF	Записване на PDF
+	Save PDF As…	Записване на PDF като…
+	Save the document as a PDF	Записване на документа като PDF
+	Save with Password	Записване с парола
+	Save with Password…	Записване с парола…
+	Saved {path}	Записано: {path}
+	Select, move and resize marks; drag over text to select it; fill in form fields	Избиране, преместване и преоразмеряване на маркировки; плъзнете върху текст, за да го изберете; попълване на полета на формуляри
+	Signature	Подпис
+	Split…	Разделяне…
+	Stamp	Щемпел
+	The PDF view stopped working; restart WordCraft to bring it back.	Изгледът на PDF спря да работи; рестартирайте WordCraft, за да го върнете.
+	The font size follows the box: resize it and the text grows or shrinks to fill it	Размерът на шрифта следва полето: преоразмерете го и текстът се увеличава или намалява, за да го запълни
+	The parts are saved next to the file you name, numbered	Частите се записват до посочения от вас файл, номерирани
+	The passwords don't match	Паролите не съвпадат
+	Top Center	Горе в средата
+	Top Left	Горе вляво
+	Top Right	Горе вдясно
+	Type here	Въведете тук
+	Watermark…	Воден знак…
+	Whiteout	Избелване
+	Wrote {n} files	Записани файлове: {n}
+	{i} of {n}	{i} от {n}
+	{n} is the page number, {N} the number of pages	{n} е номерът на страницата, {N} – броят на страниците

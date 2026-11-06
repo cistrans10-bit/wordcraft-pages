@@ -2759,3 +2759,84 @@ template	Letter	Thư
 	The document	Tài liệu
 	The document and its PDF side by side, page for page	Tài liệu và PDF của nó cạnh nhau, từng trang
 	The document as a PDF	Tài liệu dưới dạng PDF
+	Angle	Góc
+	Black out part of the page for good: the text, pictures and drawing under it are removed when the page is saved	Bôi đen vĩnh viễn một phần trang: văn bản, hình ảnh và hình vẽ bên dưới sẽ bị xóa khi lưu trang
+	Bottom Center	Dưới giữa
+	Bottom Left	Dưới trái
+	Bottom Right	Dưới phải
+	Change Mark	Thay đổi đánh dấu
+	Click a line of the PDF's text to change it, in a matching font	Bấm vào một dòng văn bản của PDF để thay đổi, với phông chữ phù hợp
+	Click or drag to stamp	Bấm hoặc kéo để đóng dấu
+	Click or drag, then pick a picture	Bấm hoặc kéo, rồi chọn một ảnh
+	Click to add a note	Bấm để thêm ghi chú
+	Compress	Nén
+	Copied	Đã sao chép
+	Copied the PDF's text	Đã sao chép văn bản của PDF
+	Copy All Text	Sao chép toàn bộ văn bản
+	Cover part of the page with white	Che một phần trang bằng màu trắng
+	Delete Mark	Xóa đánh dấu
+	Drag a box and type; the text fits the box as you resize it	Kéo một hộp rồi gõ; văn bản vừa với hộp khi bạn đổi kích thước
+	Drag on the page	Kéo trên trang
+	Drag over text	Kéo qua văn bản
+	Drag the part of the page to keep	Kéo chọn phần trang cần giữ
+	Draw Signature…	Vẽ chữ ký…
+	Draw freehand	Vẽ tự do
+	Draw your signature	Vẽ chữ ký của bạn
+	Draw your signature once, then click or drag to sign	Vẽ chữ ký một lần, rồi bấm hoặc kéo để ký
+	Edit Text	Sửa văn bản
+	Every page becomes a picture: nothing on it can be changed or copied	Mỗi trang trở thành một ảnh: không thể thay đổi hay sao chép gì trên đó
+	Export PDF…	Xuất PDF…
+	Export Pages as Images	Xuất trang thành ảnh
+	Export Pages as Images…	Xuất trang thành ảnh…
+	Extract Pages	Trích xuất trang
+	Extract Page…	Trích xuất một trang…
+	Find in PDF	Tìm trong PDF
+	Fit text to box	Vừa văn bản với hộp
+	Fit the page	Vừa trang
+	Flatten (every page becomes a picture)	Làm phẳng (mỗi trang trở thành một ảnh)
+	Form Fields	Trường biểu mẫu
+	Header, Footer and Page Numbers…	Đầu trang, chân trang và số trang…
+	Insert Pages from PDF	Chèn trang từ PDF
+	Insert Pages from PDF…	Chèn trang từ PDF…
+	Making the PDF…	Đang tạo PDF…
+	Mark Up	Đánh dấu
+	More Colors	Màu khác
+	No choices	Không có lựa chọn
+	No matches	Không có kết quả
+	No text there to edit: use Text Box to add some	Không có văn bản để sửa ở đây: dùng Hộp văn bản để thêm
+	Note	Ghi chú
+	PDF Edits	Chỉnh sửa PDF
+	PDF · as opened	PDF · như khi mở
+	PDF · updates as you edit	PDF · cập nhật khi bạn sửa
+	Page actions	Thao tác trang
+	Page {n} of {N}	Trang {n} / {N}
+	Pages Panel	Ngăn trang
+	Pages per file	Số trang mỗi tệp
+	Properties…	Thuộc tính…
+	Redact	Bôi đen
+	Reenter password	Nhập lại mật khẩu
+	Resolution	Độ phân giải
+	Save Flattened…	Lưu dạng phẳng…
+	Save PDF	Lưu PDF
+	Save PDF As…	Lưu PDF thành…
+	Save the document as a PDF	Lưu tài liệu dưới dạng PDF
+	Save with Password	Lưu có mật khẩu
+	Save with Password…	Lưu có mật khẩu…
+	Saved {path}	Đã lưu {path}
+	Select, move and resize marks; drag over text to select it; fill in form fields	Chọn, di chuyển và đổi kích thước đánh dấu; kéo qua văn bản để chọn; điền trường biểu mẫu
+	Signature	Chữ ký
+	Split…	Tách…
+	Stamp	Con dấu
+	The PDF view stopped working; restart WordCraft to bring it back.	Chế độ xem PDF đã ngừng hoạt động; khởi động lại WordCraft để khôi phục.
+	The font size follows the box: resize it and the text grows or shrinks to fill it	Cỡ chữ theo hộp: đổi kích thước hộp và văn bản sẽ to hoặc nhỏ lại để lấp đầy
+	The parts are saved next to the file you name, numbered	Các phần được lưu cạnh tệp bạn đặt tên, có đánh số
+	The passwords don't match	Mật khẩu không khớp
+	Top Center	Trên giữa
+	Top Left	Trên trái
+	Top Right	Trên phải
+	Type here	Gõ vào đây
+	Watermark…	Hình mờ…
+	Whiteout	Che trắng
+	Wrote {n} files	Đã ghi {n} tệp
+	{i} of {n}	{i} / {n}
+	{n} is the page number, {N} the number of pages	{n} là số trang, {N} là tổng số trang

@@ -2716,3 +2716,84 @@ preview	Title	Örnek
 	The document	Belge
 	The document and its PDF side by side, page for page	Belge ve PDF'i yan yana, sayfa sayfa
 	The document as a PDF	Belge PDF olarak
+	Angle	Açı
+	Black out part of the page for good: the text, pictures and drawing under it are removed when the page is saved	Sayfanın bir bölümünü kalıcı olarak karartın: altındaki metin, resimler ve çizimler sayfa kaydedildiğinde kaldırılır
+	Bottom Center	Alt Orta
+	Bottom Left	Sol Alt
+	Bottom Right	Sağ Alt
+	Change Mark	İşareti Değiştir
+	Click a line of the PDF's text to change it, in a matching font	PDF metninin bir satırını eşleşen yazı tipiyle değiştirmek için tıklayın
+	Click or drag to stamp	Damga basmak için tıklayın veya sürükleyin
+	Click or drag, then pick a picture	Tıklayın veya sürükleyin, sonra bir resim seçin
+	Click to add a note	Not eklemek için tıklayın
+	Compress	Sıkıştır
+	Copied	Kopyalandı
+	Copied the PDF's text	PDF metni kopyalandı
+	Copy All Text	Tüm Metni Kopyala
+	Cover part of the page with white	Sayfanın bir bölümünü beyazla kapatın
+	Delete Mark	İşareti Sil
+	Drag a box and type; the text fits the box as you resize it	Bir kutu sürükleyip yazın; kutuyu yeniden boyutlandırdıkça metin kutuya sığar
+	Drag on the page	Sayfa üzerinde sürükleyin
+	Drag over text	Metnin üzerinde sürükleyin
+	Drag the part of the page to keep	Sayfanın saklanacak bölümünü sürükleyerek seçin
+	Draw Signature…	İmza Çiz…
+	Draw freehand	Serbest çizim
+	Draw your signature	İmzanızı çizin
+	Draw your signature once, then click or drag to sign	İmzanızı bir kez çizin, sonra imzalamak için tıklayın veya sürükleyin
+	Edit Text	Metni Düzenle
+	Every page becomes a picture: nothing on it can be changed or copied	Her sayfa bir resme dönüşür: üzerindeki hiçbir şey değiştirilemez veya kopyalanamaz
+	Export PDF…	PDF Olarak Dışarı Aktar…
+	Export Pages as Images	Sayfaları Resim Olarak Dışarı Aktar
+	Export Pages as Images…	Sayfaları Resim Olarak Dışarı Aktar…
+	Extract Pages	Sayfaları Ayıkla
+	Extract Page…	Sayfayı Ayıkla…
+	Find in PDF	PDF'de Bul
+	Fit text to box	Metni kutuya sığdır
+	Fit the page	Sayfaya sığdır
+	Flatten (every page becomes a picture)	Düzleştir (her sayfa bir resme dönüşür)
+	Form Fields	Form Alanları
+	Header, Footer and Page Numbers…	Üst Bilgi, Alt Bilgi ve Sayfa Numaraları…
+	Insert Pages from PDF	PDF'den Sayfa Ekle
+	Insert Pages from PDF…	PDF'den Sayfa Ekle…
+	Making the PDF…	PDF oluşturuluyor…
+	Mark Up	İşaretleme
+	More Colors	Diğer Renkler
+	No choices	Seçenek yok
+	No matches	Eşleşme yok
+	No text there to edit: use Text Box to add some	Burada düzenlenecek metin yok: metin eklemek için Metin Kutusu'nu kullanın
+	Note	Not
+	PDF Edits	PDF Düzenlemeleri
+	PDF · as opened	PDF · açıldığı gibi
+	PDF · updates as you edit	PDF · düzenledikçe güncellenir
+	Page actions	Sayfa eylemleri
+	Page {n} of {N}	Sayfa {n} / {N}
+	Pages Panel	Sayfalar Bölmesi
+	Pages per file	Dosya başına sayfa
+	Properties…	Özellikler…
+	Redact	Karart
+	Reenter password	Parolayı yeniden girin
+	Resolution	Çözünürlük
+	Save Flattened…	Düzleştirilmiş Kaydet…
+	Save PDF	PDF'yi Kaydet
+	Save PDF As…	PDF'yi Farklı Kaydet…
+	Save the document as a PDF	Belgeyi PDF olarak kaydet
+	Save with Password	Parolayla Kaydet
+	Save with Password…	Parolayla Kaydet…
+	Saved {path}	Kaydedildi: {path}
+	Select, move and resize marks; drag over text to select it; fill in form fields	İşaretleri seçin, taşıyın ve yeniden boyutlandırın; seçmek için metnin üzerinde sürükleyin; form alanlarını doldurun
+	Signature	İmza
+	Split…	Böl…
+	Stamp	Damga
+	The PDF view stopped working; restart WordCraft to bring it back.	PDF görünümü çalışmayı durdurdu; geri getirmek için WordCraft'ı yeniden başlatın.
+	The font size follows the box: resize it and the text grows or shrinks to fill it	Yazı tipi boyutu kutuyu izler: kutuyu yeniden boyutlandırın, metin onu dolduracak şekilde büyür veya küçülür
+	The parts are saved next to the file you name, numbered	Parçalar, adlandırdığınız dosyanın yanına numaralandırılarak kaydedilir
+	The passwords don't match	Parolalar eşleşmiyor
+	Top Center	Üst Orta
+	Top Left	Sol Üst
+	Top Right	Sağ Üst
+	Type here	Buraya yazın
+	Watermark…	Filigran…
+	Whiteout	Beyaz örtü
+	Wrote {n} files	{n} dosya yazıldı
+	{i} of {n}	{i} / {n}
+	{n} is the page number, {N} the number of pages	{n} sayfa numarası, {N} sayfa sayısıdır

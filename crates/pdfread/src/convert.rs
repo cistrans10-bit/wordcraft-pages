@@ -916,3 +916,32 @@ fn xml(s: &str) -> String {
     }
     out
 }
+
+/// The page's text as lines of the editor's PDF tools (edit text, search, copy): one per
+/// segment (a table cell or column is its own), top to bottom, in page display coordinates.
+pub(crate) fn text_lines(c: &PageContent) -> Vec<crate::TextLine> {
+    let mut out = Vec::new();
+    for line in build_lines(&c.letters) {
+        for seg in &line.segs {
+            let Some(first) = seg.words.first() else { continue };
+            let text = seg.words.iter().map(|w| w.text.as_str()).collect::<Vec<_>>().join(" ");
+            let size = f64::from(first.style.half_points) / 2.0;
+            let base = c.height - line.base;
+            out.push(crate::TextLine {
+                text,
+                x: seg.left() as f32,
+                y: (base - line.size * 0.86) as f32,
+                w: (seg.right() - seg.left()).max(1.0) as f32,
+                h: (line.size * 1.16) as f32,
+                base: base as f32,
+                size: size as f32,
+                font: first.style.font.to_string(),
+                bold: first.style.bold,
+                italic: first.style.italic,
+                color: first.style.color,
+                word_spans: seg.words.iter().map(|w| (w.left as f32, w.right as f32)).collect(),
+            });
+        }
+    }
+    out
+}

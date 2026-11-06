@@ -46,6 +46,7 @@ pub const TABLE: &[(&str, Class)] = &[
     ("pdfread", Class::Layer(2)),
     ("render", Class::Layer(3)),
     ("pdf", Class::Layer(3)),
+    ("pdfedit", Class::Layer(3)),
     ("engine", Class::Layer(4)),
     ("mcp", Class::Layer(5)),
     ("zotero", Class::Layer(5)),

@@ -34,6 +34,47 @@ drawing (rules, table fills, panels) are anchored behind the text. Until you edi
 view shows the PDF you opened; Save asks where to save the document (as .docx, named after the
 PDF) and never writes over the PDF.
 
+## Editing the PDF
+
+In **PDF** mode (and in the PDF half of **DOCX + PDF**) the PDF itself can be edited, and saved
+back over the PDF it came from (**Save PDF**, Ctrl+S) or anywhere else (**Save As**). Opening a
+PDF goes straight to PDF mode. Everything below works on any PDF and on the document's own export:
+
+- **Mark up:** Highlight, Underline and Strikethrough snap to the words you drag over; Pen
+  (freehand), Line, Arrow, Rectangle, Oval; Notes; Stamps (Approved, Draft, Confidential… or your
+  own words); Pictures; your Signature, drawn once and placed anywhere. Marks are real PDF
+  annotations, each one selectable: move it, resize it by its handles, nudge it with the arrow
+  keys, change its colour or thickness, or delete it.
+- **Text:** Text Box: drag a box and type; with *Fit text to box* (on by default) the font size
+  follows the box as you resize it. **Edit Text**: click a line of the PDF's own text and change
+  it; the new text is set in the line's font, size, weight and colour.
+- **Cover and remove:** Whiteout covers part of a page; **Redact** blacks it out for good: the page
+  is rebuilt as a picture with the area black, so the text, pictures and drawing under it are gone
+  from the saved file, not just hidden.
+- **Pages** (the Pages panel, a page's right-click menu): rotate, delete, duplicate, move up and
+  down, insert a blank page, insert the pages of another PDF (merge), extract pages to a new PDF,
+  split a PDF into parts, crop (drag the part to keep), flip and scale (`pdf.transform`).
+- **Document:** watermarks; page numbers, headers and footers (`Page {n} of {N}`, six positions);
+  properties (title, author, subject, keywords); find, with every match highlighted; select text
+  and copy it, or copy all of it; export pages as PNG or JPEG.
+- **Forms:** text fields, check boxes, radio buttons and choice lists are filled in on the page.
+- **Saving:** with a password (AES-128; a password-protected PDF opens with its password and saves
+  with it again), flattened (every page a picture), compressed. Undo and Redo (Ctrl+Z, Ctrl+Y)
+  step through every PDF edit.
+
+Edits are kept as a list and applied over the PDF as it is shown, so each one stays editable until
+you save. They are the `pdf.*` commands (`wordcraft-cli commands`, MCP), so scripts and agents can
+do all of this too; the editing lives in [`crates/pdfedit`](crates/pdfedit) (using
+[lopdf](https://github.com/J-F-Liu/lopdf), MIT) and the tools in
+[`crates/ui-egui/src/pdf_edit.rs`](crates/ui-egui/src/pdf_edit.rs).
+
+Not done: text recognition (OCR) of scanned pages, certificate-based digital signatures (the
+Signature tool places a drawn signature, it doesn't sign cryptographically), deskew and
+perspective correction of scans, and text added in boxes and edits is drawn as shapes rather than
+as searchable text.
+
+## From PDF to document
+
 Not rebuilt from a PDF: real Word tables and columns, gradients, clipping, rotated or vertical
 text, and the text of scanned pages (they come in as pictures). The converter and the PDF view
 live in [`crates/pdfread`](crates/pdfread) and use [hayro](https://github.com/LaurenzV/hayro)
@@ -332,4 +373,4 @@ modified versions"), the ArtCraft name, wordmark and logos have been removed fro
 on WordCraft by the ArtCraft team and is not an ArtCraft product.
 
 The PDF view and PDF opening use [hayro](https://github.com/LaurenzV/hayro) by Laurenz Stampfl
-(MIT OR Apache-2.0).
+(MIT OR Apache-2.0); PDF editing uses [lopdf](https://github.com/J-F-Liu/lopdf) (MIT).

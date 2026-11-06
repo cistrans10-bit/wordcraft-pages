@@ -20,6 +20,7 @@ wordcraft-docbin = { workspace = true }
 wordcraft-pdf = { workspace = true }
 wordcraft-formats = { workspace = true }
 wordcraft-pdfread = { workspace = true }
+wordcraft-pdfedit = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }

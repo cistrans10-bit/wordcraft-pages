@@ -8,6 +8,9 @@
 //! The two sides keep to the same page: scroll the document and the PDF follows; scroll the PDF
 //! (the pointer over it) and the document follows.
 //!
+//! PDF edits (`pdf.*`, [`crate::pdf_edit`]: markup, pages, stamps, forms) are applied over that
+//! PDF as it is shown, the moment they are made.
+//!
 //! Exporting and rendering run on a worker thread (in the browser, where there are no threads,
 //! in the frame), so typing never waits for them; the page images on screen stay until their
 //! replacements arrive, so the view never flashes blank.
@@ -18,7 +21,8 @@ use egui::{Align2, Color32, Rect, Sense, Stroke, Ui, pos2, vec2};
 use serde_json::json;
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
-use wordcraft_engine::pdfread::{PageImage, PdfView};
+use wordcraft_engine::pdfedit::{Field, Op};
+use wordcraft_engine::pdfread::{PageImage, PdfView, TextLine};
 
 /// How the PDF view is shown: not at all (DOCX), beside the page (DOCX + PDF) or alone (PDF).
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -55,26 +59,55 @@ const GAP: f32 = 12.0;
 /// Page images kept on either side of the visible pages.
 const KEEP: usize = 4;
 
-enum Source {
+pub(crate) enum Source {
     /// The PDF itself (the one the document was opened from).
     Bytes(Arc<Vec<u8>>),
     /// The document, to export first.
     Export(Box<wordcraft_engine::doc::Document>),
 }
 
-enum Job {
-    Show { version: u64, source: Source },
-    Render { version: u64, page: usize, scale: f32, key: u32 },
+pub(crate) enum Job {
+    /// Show the PDF of `source` (known by `base`: the document state it is) with `ops` applied.
+    Show {
+        version: u64,
+        base: (u64, u64),
+        source: Source,
+        ops: Arc<Vec<Op>>,
+    },
+    Render {
+        version: u64,
+        page: usize,
+        scale: f32,
+        key: u32,
+        thumb: bool,
+    },
+    /// A page's text lines (for marking up and editing text).
+    Lines {
+        version: u64,
+        page: usize,
+    },
+    /// Where `query` is found.
+    Search {
+        version: u64,
+        query: String,
+    },
+    /// The pages' text, for copying.
+    Text {
+        version: u64,
+    },
 }
 
-enum Reply {
-    Opened { version: u64, sizes: Vec<(f32, f32)>, exported: bool },
+pub(crate) enum Reply {
+    Opened { version: u64, sizes: Vec<(f32, f32)>, exported: bool, fields: Vec<Field>, marks: HashMap<u64, usize> },
     Failed { version: u64, error: String },
-    Page { version: u64, page: usize, key: u32, image: PageImage },
+    Page { version: u64, page: usize, key: u32, image: PageImage, thumb: bool },
+    Lines { version: u64, page: usize, lines: Vec<TextLine> },
+    Hits { version: u64, query: String, hits: Vec<(usize, [f32; 4])> },
+    Text { text: String },
 }
 
 /// The worker that exports and renders. It holds the open PDF; only sizes and pixels come back.
-struct Worker {
+pub(crate) struct Worker {
     #[cfg(not(target_arch = "wasm32"))]
     jobs: std::sync::mpsc::Sender<Job>,
     #[cfg(not(target_arch = "wasm32"))]
@@ -88,31 +121,65 @@ struct Worker {
 #[derive(Default)]
 struct WorkerState {
     view: Option<(u64, PdfView)>,
+    /// The last PDF made from the document (its state, the bytes): edits to the PDF alone
+    /// don't export it again.
+    base: Option<((u64, u64), Arc<Vec<u8>>)>,
 }
 
 impl WorkerState {
     fn run(&mut self, job: Job, reply: &mut dyn FnMut(Reply)) {
+        fn current(v: u64, s: &WorkerState) -> Option<&PdfView> {
+            s.view.as_ref().filter(|(sv, _)| *sv == v).map(|(_, view)| view)
+        }
         match job {
-            Job::Show { version, source } => {
+            Job::Show { version, base, source, ops } => {
                 let exported = matches!(source, Source::Export(_));
-                let bytes = match source {
-                    Source::Bytes(b) => Ok(b.as_ref().clone()),
-                    Source::Export(doc) => wordcraft_engine::io::save_bytes("view.pdf", &doc),
+                let bytes = match (&self.base, source) {
+                    (Some((k, b)), _) if *k == base => Ok(b.clone()),
+                    (_, Source::Bytes(b)) => Ok(b),
+                    (_, Source::Export(doc)) => wordcraft_engine::io::save_bytes("view.pdf", &doc).map(Arc::new),
                 };
-                match bytes.and_then(|b| PdfView::open(b).map_err(|e| e.to_string())) {
-                    Ok(view) => {
-                        reply(Reply::Opened { version, sizes: view.page_sizes().to_vec(), exported });
+                let made = bytes.and_then(|b| {
+                    self.base = Some((base, b.clone()));
+                    if ops.is_empty() {
+                        return Ok((b.as_ref().clone(), HashMap::new()));
+                    }
+                    let opts = wordcraft_engine::pdfedit::SaveOptions { compress: false, ..Default::default() };
+                    let edited = wordcraft_engine::pdfedit::apply(&b, &ops, &opts).map_err(|e| e.to_string())?;
+                    Ok((edited, wordcraft_engine::pdfedit::mark_pages(&b, &ops)))
+                });
+                match made.and_then(|(b, marks)| {
+                    let fields = wordcraft_engine::pdfedit::fields(&b).unwrap_or_default();
+                    PdfView::open(b).map(|v| (v, fields, marks)).map_err(|e| e.to_string())
+                }) {
+                    Ok((view, fields, marks)) => {
+                        reply(Reply::Opened { version, sizes: view.page_sizes().to_vec(), exported, fields, marks });
                         self.view = Some((version, view));
                     }
                     Err(error) => reply(Reply::Failed { version, error }),
                 }
             }
-            Job::Render { version, page, scale, key } => {
-                if let Some((v, view)) = &self.view
-                    && *v == version
+            Job::Render { version, page, scale, key, thumb } => {
+                if let Some(view) = current(version, self)
                     && let Ok(image) = view.render(page, scale)
                 {
-                    reply(Reply::Page { version, page, key, image });
+                    reply(Reply::Page { version, page, key, image, thumb });
+                }
+            }
+            Job::Lines { version, page } => {
+                if let Some(view) = current(version, self) {
+                    reply(Reply::Lines { version, page, lines: view.text_lines(page) });
+                }
+            }
+            Job::Search { version, query } => {
+                if let Some(view) = current(version, self) {
+                    reply(Reply::Hits { version, hits: view.search(&query, 5000), query });
+                }
+            }
+            Job::Text { version } => {
+                if let Some(view) = current(version, self) {
+                    let text: Vec<String> = (0..view.page_count()).map(|p| view.page_text(p)).collect();
+                    reply(Reply::Text { text: text.join("\n\n") });
                 }
             }
         }
@@ -160,7 +227,7 @@ impl Worker {
     }
 
     /// Hands a job over; false when the worker is gone.
-    fn send(&mut self, job: Job) -> bool {
+    pub(crate) fn send(&mut self, job: Job) -> bool {
         #[cfg(not(target_arch = "wasm32"))]
         {
             self.jobs.send(job).is_ok()
@@ -186,41 +253,55 @@ impl Worker {
 }
 
 /// The PDF on screen.
-struct Shown {
-    version: u64,
-    sizes: Vec<(f32, f32)>,
+pub(crate) struct Shown {
+    pub version: u64,
+    pub sizes: Vec<(f32, f32)>,
     exported: bool,
+    /// Its form fields.
+    pub fields: Vec<Field>,
+    /// The page each mark is on (by mark id), where it can still be picked.
+    pub marks: HashMap<u64, usize>,
 }
 
 /// The PDF view's state.
 #[derive(Default)]
 pub struct PdfPane {
     pub mode: PdfMode,
-    worker: Option<Worker>,
+    pub(crate) worker: Option<Worker>,
     worker_failed: bool,
     /// The last PDF asked for.
     version: u64,
-    shown: Option<Shown>,
-    /// The document state (document id, revision) the PDF shows or is being made from.
-    requested: Option<(u64, u64)>,
+    pub(crate) shown: Option<Shown>,
+    /// The document state (document id, revision, PDF edits' revision) the PDF shows or is being
+    /// made from.
+    requested: Option<(u64, u64, u64)>,
     /// The document state last seen, and when it changed (seconds).
     seen: Option<(u64, u64)>,
     changed_at: f64,
     textures: HashMap<usize, (u64, u32, egui::TextureHandle)>,
     pending: HashSet<(u64, usize, u32)>,
+    /// Page thumbnails (Pages panel): version, texture.
+    pub(crate) thumbs: HashMap<usize, (u64, egui::TextureHandle)>,
+    pub(crate) thumbs_pending: HashSet<(u64, usize)>,
     pub error: Option<String>,
     /// Zoom over Fit Width (1 = the widest page fills the view).
-    zoom: f32,
+    pub(crate) zoom: f32,
     /// A page to bring to the top of the view next frame.
-    scroll_to: Option<usize>,
+    pub(crate) scroll_to: Option<usize>,
     /// The page filling most of the view, last frame.
     pub page: usize,
     /// The page both sides last agreed on.
     synced: Option<usize>,
     /// The view's rect last frame (whether the pointer is over it leads the page sync).
-    rect: Option<Rect>,
+    pub(crate) rect: Option<Rect>,
     /// Width of the view beside the page (DOCX + PDF).
     side_width: Option<f32>,
+    /// The pages on screen last frame (index, rect) and their scale (screen points per point).
+    pub(crate) on_screen: (Vec<(usize, Rect)>, f32),
+    /// The editing tools' state.
+    pub ed: crate::pdf_edit::Editor,
+    /// The last document seen: one opened from a PDF opens in PDF mode.
+    seen_document: Option<u64>,
 }
 
 impl PdfPane {
@@ -235,9 +316,16 @@ impl PdfPane {
 
     /// The PDF on screen: its pages and whether it is the document's export (or the PDF it was
     /// opened from).
+    /// The PDF on screen's version (`None`: none yet).
+    pub(crate) fn shown_version(&self) -> Option<u64> {
+        self.shown.as_ref().map(|s| s.version)
+    }
+
     pub fn info(&self) -> serde_json::Value {
         match &self.shown {
-            Some(s) => json!({"mode": self.mode.id(), "pages": s.sizes.len(), "page": self.page + 1, "live": s.exported, "error": self.error}),
+            Some(s) => {
+                json!({"mode": self.mode.id(), "pages": s.sizes.len(), "page": self.page + 1, "live": s.exported, "error": self.error, "tool": self.ed.tool.id(), "fields": s.fields.len(), "version": s.version})
+            }
             None => json!({"mode": self.mode.id(), "pages": 0, "error": self.error}),
         }
     }
@@ -250,6 +338,15 @@ fn now(ctx: &egui::Context) -> f64 {
 /// Each frame, before drawing: start the worker, ask for a new PDF when the document changed
 /// (once editing pauses), and take in what the worker made.
 pub fn logic(app: &mut WordApp, ctx: &egui::Context) {
+    // A document opened from a PDF opens as the PDF, ready to edit.
+    let id = app.session.document_id();
+    if app.pdf.seen_document != Some(id) {
+        app.pdf.seen_document = Some(id);
+        app.pdf.ed = Default::default();
+        if app.session.pdf_source.is_some() && app.pdf.mode == PdfMode::Docx {
+            app.pdf.set_mode(PdfMode::Pdf);
+        }
+    }
     let pane = &mut app.pdf;
     if pane.mode == PdfMode::Docx || !app_has_document(app) {
         return;
@@ -262,25 +359,31 @@ pub fn logic(app: &mut WordApp, ctx: &egui::Context) {
             pane.zoom = 1.0;
         }
     }
-    let want = (app.session.document_id(), app.session.rev());
+    let doc_state = (app.session.document_id(), app.session.rev());
+    let want = (doc_state.0, doc_state.1, app.session.pdf.rev);
     let t = now(ctx);
-    if pane.seen != Some(want) {
-        pane.seen = Some(want);
+    if pane.seen != Some(doc_state) {
+        pane.seen = Some(doc_state);
         pane.changed_at = t;
     }
     if pane.requested != Some(want) {
         let original = app.session.pdf_source.clone().filter(|_| app.session.pdf_source_rev == want.1);
         let new_document = pane.requested.map(|r| r.0) != Some(want.0);
         let settled = t - pane.changed_at >= SETTLE;
-        if original.is_some() || new_document || settled {
+        // Only the PDF's edits changed: shown at once.
+        let same_document = pane.requested.map(|r| (r.0, r.1)) == Some(doc_state);
+        if original.is_some() || new_document || settled || same_document {
+            // The PDF the edits apply to, known by the document state it shows.
+            let base = if original.is_some() { (doc_state.0, app.session.pdf_source_rev) } else { doc_state };
             let source = match original {
                 Some(bytes) => Source::Bytes(bytes),
                 None => Source::Export(Box::new(app.session.doc.clone())),
             };
+            let ops = Arc::new(app.session.pdf.ops.clone());
             pane.version += 1;
             let version = pane.version;
             if let Some(w) = pane.worker.as_mut()
-                && w.send(Job::Show { version, source })
+                && w.send(Job::Show { version, base, source, ops })
             {
                 pane.requested = Some(want);
             } else {
@@ -295,10 +398,11 @@ pub fn logic(app: &mut WordApp, ctx: &egui::Context) {
     let replies = pane.worker.as_mut().map(Worker::take).unwrap_or_default();
     for r in replies {
         match r {
-            Reply::Opened { version, sizes, exported } => {
+            Reply::Opened { version, sizes, exported, fields, marks } => {
                 // Only a newer PDF replaces the one on screen.
                 if pane.shown.as_ref().is_none_or(|s| s.version < version) {
-                    pane.shown = Some(Shown { version, sizes, exported });
+                    pane.shown = Some(Shown { version, sizes, exported, fields, marks });
+                    pane.ed.new_version(version);
                     pane.error = None;
                     pane.pending.retain(|p| p.0 >= version);
                 }
@@ -308,16 +412,34 @@ pub fn logic(app: &mut WordApp, ctx: &egui::Context) {
                     pane.error = Some(error);
                 }
             }
-            Reply::Page { version, page, key, image } => {
-                pane.pending.remove(&(version, page, key));
+            Reply::Page { version, page, key, image, thumb } => {
+                if thumb {
+                    pane.thumbs_pending.remove(&(version, page));
+                } else {
+                    pane.pending.remove(&(version, page, key));
+                }
                 if pane.shown.as_ref().is_some_and(|s| s.version == version) {
                     let size = [image.width as usize, image.height as usize];
                     let ci = egui::ColorImage::from_rgba_unmultiplied(size, &image.rgba);
-                    let tex = ctx.load_texture(format!("pdf-page{page}"), ci, egui::TextureOptions::LINEAR);
-                    pane.textures.insert(page, (version, key, tex));
+                    if thumb {
+                        let tex = ctx.load_texture(format!("pdf-thumb{page}"), ci, egui::TextureOptions::LINEAR);
+                        pane.thumbs.insert(page, (version, tex));
+                    } else {
+                        let tex = ctx.load_texture(format!("pdf-page{page}"), ci, egui::TextureOptions::LINEAR);
+                        pane.textures.insert(page, (version, key, tex));
+                    }
                 }
             }
+            Reply::Lines { version, page, lines } => pane.ed.got_lines(version, page, lines),
+            Reply::Hits { version, query, hits } => pane.ed.got_hits(version, query, hits),
+            Reply::Text { text } => {
+                ctx.copy_text(text);
+                pane.ed.status = Some(tl!("Copied the PDF's text").to_string());
+            }
         }
+    }
+    if let Some(msg) = app.pdf.ed.status.take() {
+        app.status(msg);
     }
 }
 
@@ -364,12 +486,24 @@ pub fn show_side(app: &mut WordApp, ui: &mut Ui) {
 /// The view in place of the page (PDF).
 pub fn show_full(app: &mut WordApp, ui: &mut Ui) {
     let t = Tokens::get(ui.ctx());
+    if app.pdf.ed.pages_panel {
+        egui::Panel::left("pdf_pages")
+            .default_size(150.0)
+            .min_size(110.0)
+            .max_size(320.0)
+            .resizable(true)
+            .frame(egui::Frame::NONE.fill(t.ribbon).stroke(Stroke::new(1.0, t.border)))
+            .show(ui, |ui| crate::pdf_edit::pages_panel(app, ui));
+    }
     egui::CentralPanel::default().frame(egui::Frame::NONE.fill(t.canvas)).show(ui, |ui| view(app, ui));
 }
 
 fn view(app: &mut WordApp, ui: &mut Ui) {
     let t = Tokens::get(ui.ctx());
     toolbar(app, ui, &t);
+    crate::pdf_edit::toolbar(app, ui, &t);
+    crate::pdf_edit::keys(app, ui.ctx());
+    crate::pdf_edit::dialogs(app, ui.ctx());
     let Some(shown) = app.pdf.shown.as_ref() else {
         let msg = app.pdf.error.clone().unwrap_or_else(|| tl!("Making the PDF…").to_string());
         ui.centered_and_justified(|ui| ui.label(egui::RichText::new(msg).color(t.text_dim)));
@@ -414,7 +548,12 @@ fn view(app: &mut WordApp, ui: &mut Ui) {
         }
     }
 
-    let mut area = egui::ScrollArea::both().id_salt("pdf_scroll").auto_shrink([false, false]);
+    // Dragging on a page draws (or selects), so it doesn't scroll.
+    let mut area = egui::ScrollArea::both().id_salt("pdf_scroll").auto_shrink([false, false]).scroll_source(egui::scroll_area::ScrollSource {
+        scroll_bar: true,
+        drag: egui::scroll_area::DragScroll::Never,
+        mouse_wheel: true,
+    });
     if let Some(p) = app.pdf.scroll_to.take()
         && let Some(top) = tops.get(p)
     {
@@ -423,11 +562,12 @@ fn view(app: &mut WordApp, ui: &mut Ui) {
     let mut wanted: Vec<(usize, f32)> = Vec::new();
     let mut visible_best: Option<(f32, usize)> = None;
     let mut visible_range = (usize::MAX, 0usize);
+    let mut on_screen: Vec<(usize, Rect)> = Vec::new();
     area.show_viewport(ui, |ui, viewport| {
         let origin = ui.min_rect().min;
         let avail_w = ui.available_width().max(content_w);
         ui.allocate_space(vec2(avail_w, content_h));
-        let painter = ui.painter();
+        let painter = ui.painter().clone();
         for (i, (w, h)) in sizes.iter().enumerate() {
             let top = tops.get(i).copied().unwrap_or(0.0);
             let (pw, ph) = (w * scale, h * scale);
@@ -443,6 +583,7 @@ fn view(app: &mut WordApp, ui: &mut Ui) {
                     visible_best = Some((seen, i));
                 }
             }
+            on_screen.push((i, r));
             painter.rect_filled(r.translate(vec2(0.0, 2.0)).expand(1.0), 2.0, t.page_shadow);
             painter.rect_filled(r, 0.0, Color32::WHITE);
             match app.pdf.textures.get(&i) {
@@ -455,6 +596,9 @@ fn view(app: &mut WordApp, ui: &mut Ui) {
                 None => wanted.push((i, seen)),
             }
         }
+        // Marking up, selecting and filling in, over the pages.
+        crate::pdf_edit::overlay(app, ui, &on_screen, scale);
+        app.pdf.on_screen = (on_screen, scale);
     });
     if let Some((_, p)) = visible_best {
         app.pdf.page = p;
@@ -471,7 +615,7 @@ fn view(app: &mut WordApp, ui: &mut Ui) {
         if app.pdf.pending.insert((version, page, key))
             && let Some(w) = app.pdf.worker.as_mut()
         {
-            w.send(Job::Render { version, page, scale: render_scale, key });
+            w.send(Job::Render { version, page, scale: render_scale, key, thumb: false });
         }
     }
     // Pages far from view give their images back.

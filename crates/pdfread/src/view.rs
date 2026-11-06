@@ -77,6 +77,51 @@ impl PdfView {
     }
 }
 
+impl PdfView {
+    /// Page `index`'s text as lines (see [`crate::TextLine`]); empty for a page without text.
+    pub fn text_lines(&self, index: usize) -> Vec<crate::TextLine> {
+        let pages = self.pdf.pages();
+        let Some(page) = pages.get(index) else { return Vec::new() };
+        let content = crate::extract::page_content(&self.pdf, page);
+        crate::convert::text_lines(&content)
+    }
+
+    /// The text of page `index`, a line per line.
+    pub fn page_text(&self, index: usize) -> String {
+        self.text_lines(index).iter().map(|l| l.text.as_str()).collect::<Vec<_>>().join("\n")
+    }
+
+    /// Where `query` appears (case-insensitive, within a line), as (page, [x, y, w, h]) boxes in
+    /// page display coordinates, at most `max`.
+    pub fn search(&self, query: &str, max: usize) -> Vec<(usize, [f32; 4])> {
+        let q = query.trim().to_lowercase();
+        let mut hits = Vec::new();
+        if q.is_empty() {
+            return hits;
+        }
+        for page in 0..self.page_count() {
+            for line in self.text_lines(page) {
+                let lower = line.text.to_lowercase();
+                let chars = lower.chars().count().max(1) as f32;
+                let mut from = 0;
+                while let Some(at) = lower.get(from..).and_then(|t| t.find(&q)) {
+                    let start = from + at;
+                    let c0 = lower.get(..start).map_or(0, |p| p.chars().count()) as f32;
+                    let c1 = c0 + q.chars().count() as f32;
+                    let x0 = line.x + line.w * c0 / chars;
+                    let x1 = line.x + line.w * (c1 / chars).min(1.0);
+                    hits.push((page, [x0, line.y, (x1 - x0).max(2.0), line.h]));
+                    if hits.len() >= max {
+                        return hits;
+                    }
+                    from = start + q.len().max(1);
+                }
+            }
+        }
+        hits
+    }
+}
+
 /// A page side in points: junk and absurd sizes become Letter's, tiny ones grow to an inch.
 fn sane(v: f32) -> f32 {
     if v.is_finite() && v > 0.0 { v.clamp(72.0, 14400.0) } else { 612.0 }

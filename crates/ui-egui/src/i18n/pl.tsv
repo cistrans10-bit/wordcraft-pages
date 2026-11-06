@@ -2724,3 +2724,84 @@ preview	Title	Tytuł
 	The document	Dokument
 	The document and its PDF side by side, page for page	Dokument i jego PDF obok siebie, strona w stronę
 	The document as a PDF	Dokument jako PDF
+	Angle	Kąt
+	Black out part of the page for good: the text, pictures and drawing under it are removed when the page is saved	Trwale zaczernij część strony: tekst, obrazy i rysunki pod spodem są usuwane przy zapisywaniu strony
+	Bottom Center	Na dole pośrodku
+	Bottom Left	Na dole z lewej
+	Bottom Right	Na dole z prawej
+	Change Mark	Zmień oznaczenie
+	Click a line of the PDF's text to change it, in a matching font	Kliknij wiersz tekstu PDF, aby go zmienić, z dopasowaną czcionką
+	Click or drag to stamp	Kliknij lub przeciągnij, aby wstawić pieczątkę
+	Click or drag, then pick a picture	Kliknij lub przeciągnij, a następnie wybierz obraz
+	Click to add a note	Kliknij, aby dodać notatkę
+	Compress	Kompresuj
+	Copied	Skopiowano
+	Copied the PDF's text	Skopiowano tekst PDF
+	Copy All Text	Kopiuj cały tekst
+	Cover part of the page with white	Zakryj część strony białym
+	Delete Mark	Usuń oznaczenie
+	Drag a box and type; the text fits the box as you resize it	Przeciągnij pole i pisz; tekst dopasowuje się do pola przy zmianie jego rozmiaru
+	Drag on the page	Przeciągnij na stronie
+	Drag over text	Przeciągnij po tekście
+	Drag the part of the page to keep	Przeciągnij część strony do zachowania
+	Draw Signature…	Narysuj podpis…
+	Draw freehand	Rysuj odręcznie
+	Draw your signature	Narysuj swój podpis
+	Draw your signature once, then click or drag to sign	Narysuj podpis raz, a potem kliknij lub przeciągnij, aby podpisać
+	Edit Text	Edytuj tekst
+	Every page becomes a picture: nothing on it can be changed or copied	Każda strona staje się obrazem: niczego na niej nie można zmienić ani skopiować
+	Export PDF…	Eksportuj PDF…
+	Export Pages as Images	Eksportuj strony jako obrazy
+	Export Pages as Images…	Eksportuj strony jako obrazy…
+	Extract Pages	Wyodrębnij strony
+	Extract Page…	Wyodrębnij stronę…
+	Find in PDF	Znajdź w PDF
+	Fit text to box	Dopasuj tekst do pola
+	Fit the page	Dopasuj stronę
+	Flatten (every page becomes a picture)	Spłaszcz (każda strona staje się obrazem)
+	Form Fields	Pola formularza
+	Header, Footer and Page Numbers…	Nagłówek, stopka i numery stron…
+	Insert Pages from PDF	Wstaw strony z PDF
+	Insert Pages from PDF…	Wstaw strony z PDF…
+	Making the PDF…	Tworzenie PDF…
+	Mark Up	Oznacz
+	More Colors	Więcej kolorów
+	No choices	Brak opcji
+	No matches	Brak dopasowań
+	No text there to edit: use Text Box to add some	Brak tekstu do edycji: użyj pola tekstowego, aby go dodać
+	Note	Notatka
+	PDF Edits	Zmiany PDF
+	PDF · as opened	PDF · jak otwarto
+	PDF · updates as you edit	PDF · aktualizuje się podczas edycji
+	Page actions	Akcje strony
+	Page {n} of {N}	Strona {n} z {N}
+	Pages Panel	Panel stron
+	Pages per file	Stron na plik
+	Properties…	Właściwości…
+	Redact	Zaczernij
+	Reenter password	Wprowadź ponownie hasło
+	Resolution	Rozdzielczość
+	Save Flattened…	Zapisz spłaszczony…
+	Save PDF	Zapisz PDF
+	Save PDF As…	Zapisz PDF jako…
+	Save the document as a PDF	Zapisz dokument jako PDF
+	Save with Password	Zapisz z hasłem
+	Save with Password…	Zapisz z hasłem…
+	Saved {path}	Zapisano {path}
+	Select, move and resize marks; drag over text to select it; fill in form fields	Zaznaczaj, przenoś i zmieniaj rozmiar oznaczeń; przeciągnij po tekście, aby go zaznaczyć; wypełniaj pola formularzy
+	Signature	Podpis
+	Split…	Podziel…
+	Stamp	Pieczątka
+	The PDF view stopped working; restart WordCraft to bring it back.	Widok PDF przestał działać; uruchom ponownie WordCraft, aby go przywrócić.
+	The font size follows the box: resize it and the text grows or shrinks to fill it	Rozmiar czcionki podąża za polem: zmień jego rozmiar, a tekst powiększy się lub zmniejszy, by je wypełnić
+	The parts are saved next to the file you name, numbered	Części są zapisywane obok wskazanego pliku, ponumerowane
+	The passwords don't match	Hasła nie są zgodne
+	Top Center	Na górze pośrodku
+	Top Left	Na górze z lewej
+	Top Right	Na górze z prawej
+	Type here	Wpisz tutaj
+	Watermark…	Znak wodny…
+	Whiteout	Zamaluj na biało
+	Wrote {n} files	Zapisano plików: {n}
+	{i} of {n}	{i} z {n}
+	{n} is the page number, {N} the number of pages	{n} to numer strony, {N} liczba stron

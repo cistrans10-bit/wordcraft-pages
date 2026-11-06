@@ -206,7 +206,12 @@ fn read_bytes(name: &str, bytes: &[u8], password: Option<&str>, page: &wordcraft
             d.normalize_runs();
             d
         }
-        "pdf" => pdf_document(name, bytes)?,
+        "pdf" => {
+            let (plain, encrypted) = pdf_plain(bytes, password)?;
+            let mut doc = pdf_document(name, &plain)?;
+            opened(&mut doc);
+            return Ok((doc, encrypted));
+        }
         other => match crate::io_ext::open(other, bytes, page) {
             Some(r) => r?,
             None => return open_by_content(name, other, bytes, password, page),
@@ -332,6 +337,21 @@ fn pdf_document(name: &str, bytes: &[u8]) -> Result<Document, String> {
     wordcraft_docx::read(&docx).map_err(|e| format!("{name}: {e}"))
 }
 
+/// A PDF's bytes as they can be read and edited: an encrypted PDF opened with `password` (one
+/// that needs none, with none) and written back unencrypted. Also says whether it was encrypted.
+/// Without the password it needs, the error satisfies [`needs_password`]; with a wrong one,
+/// [`wrong_password`].
+pub fn pdf_plain(bytes: &[u8], password: Option<&str>) -> Result<(Vec<u8>, bool), String> {
+    if !wordcraft_pdfedit::has_encryption(bytes) {
+        return Ok((bytes.to_vec(), false));
+    }
+    let needs = wordcraft_pdfedit::is_encrypted(bytes);
+    match password {
+        None if needs => Err(wordcraft_docx::PASSWORD_REQUIRED.to_string()),
+        pw => wordcraft_pdfedit::decrypt(bytes, pw.unwrap_or("")).map(|b| (b, true)).map_err(|_| wordcraft_docx::WRONG_PASSWORD.to_string()),
+    }
+}
+
 /// Is `path` a PDF (by its extension)? Such a document is a converted copy: it saves as a Word
 /// document, not over the PDF.
 pub fn is_pdf_path(path: &str) -> bool {
@@ -357,7 +377,8 @@ fn open_by_content(
     } else if is_word_xml(bytes) {
         (wordcraft_docx::read_xml(bytes).map_err(|e| format!("{name}: {e}"))?, false)
     } else if wordcraft_pdfread::is_pdf(bytes) {
-        (pdf_document(name, bytes)?, false)
+        let (plain, encrypted) = pdf_plain(bytes, password)?;
+        (pdf_document(name, &plain)?, encrypted)
     } else if matches!(ext, "doc" | "dot" | "docx" | "docm" | "dotx" | "dotm" | "rtf") && looks_like_web_page(bytes) {
         let opened = crate::io_ext::open("html", bytes, page).unwrap_or_else(|| Err(format!("{name}: can't open web pages")));
         (opened?, false)

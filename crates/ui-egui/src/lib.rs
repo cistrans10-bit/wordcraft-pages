@@ -67,6 +67,7 @@ pub mod options;
 pub mod page_pane;
 pub mod panes;
 pub mod paste_picture;
+pub mod pdf_edit;
 pub mod pdf_view;
 pub mod previews;
 pub mod print_page;
@@ -1411,6 +1412,7 @@ impl WordApp {
                 "saveAs" => {
                     self.save_as_dialog();
                 }
+                "savePdf" => pdf_edit::save_as(self, json!({})),
                 "exportPdf" => self.export_dialog("pdf"),
                 "exportPng" => self.export_dialog("png"),
                 "insertPicture" => self.pick_picture(),
@@ -1700,6 +1702,20 @@ impl WordApp {
                         return Some(Err("`mode` must be \"docx\", \"pdf\" or \"side\"".into()));
                     };
                     self.pdf.set_mode(mode);
+                }
+                // The PDF editing tool (`select`, `highlight`, `textBox`…) and the Pages panel.
+                if let Some(t) = p.get("tool") {
+                    let Some(tool) = t.as_str().and_then(pdf_edit::Tool::parse) else {
+                        return Some(Err("`tool` must name a PDF tool (select, editText, textBox, highlight, ink, rectangle…)".into()));
+                    };
+                    self.pdf.ed.tool = tool;
+                }
+                if let Some(v) = p.get("pagesPanel") {
+                    let Some(on) = v.as_bool() else { return Some(Err("`pagesPanel` must be true or false".into())) };
+                    self.pdf.ed.pages_panel = on;
+                }
+                if let Some(v) = p.get("select") {
+                    self.pdf.ed.selected = v.as_u64();
                 }
                 self.pdf.info()
             }
@@ -2281,7 +2297,7 @@ impl WordApp {
             ctx.open_url(egui::OpenUrl::new_tab(url));
         }
         let title = if self.has_document() {
-            format!("{}{} - WordCraft", self.title_stem(), if self.session.dirty { " •" } else { "" })
+            format!("{}{} - WordCraft", self.title_stem(), if self.session.dirty || self.session.pdf.dirty() { " •" } else { "" })
         } else {
             "WordCraft".to_string()
         };

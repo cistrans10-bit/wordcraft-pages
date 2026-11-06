@@ -367,6 +367,9 @@ pub struct Session {
     /// The revision ([`Session::rev`]) the document had when it was converted from
     /// [`Self::pdf_source`]: while it still has it, the PDF shows the document as it is.
     pub pdf_source_rev: u64,
+    /// Edits to the PDF (`pdf.*`: markup, pages, stamps, forms, redaction), replayed over the
+    /// PDF the document was opened from, or over its export. Cleared with the document.
+    pub pdf: crate::cmd::pdf::PdfEdits,
     pub dirty: bool,
     /// Where the custom dictionary is kept on disk, if the host wired one up. Only the desktop
     /// app does: headless sessions (MCP, `wordcraft-cli run`), tests and the web build leave
@@ -646,6 +649,7 @@ impl Session {
             file_name: None,
             pdf_source: None,
             pdf_source_rev: 0,
+            pdf: Default::default(),
             user_dict_path: None,
             dirty: false,
             clipboard: None,
@@ -1123,6 +1127,7 @@ impl Session {
         self.password = None;
         self.file_name = None;
         self.pdf_source = None;
+        self.pdf = Default::default();
         self.sel = Selection::caret(self.doc.start_of(StoryRef::Body));
         self.pending = None;
         self.typing = None;
@@ -1166,6 +1171,7 @@ impl Session {
             file_name: _,
             pdf_source: _,
             pdf_source_rev: _,
+            pdf: _,
             // The custom dictionary file, like the file path: host wiring, not an edit.
             user_dict_path: _,
             dirty,

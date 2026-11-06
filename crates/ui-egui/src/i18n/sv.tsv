@@ -2734,3 +2734,84 @@ preview	Title	Titel
 	The document	Dokumentet
 	The document and its PDF side by side, page for page	Dokumentet och dess PDF sida vid sida, sida för sida
 	The document as a PDF	Dokumentet som PDF
+	Angle	Vinkel
+	Black out part of the page for good: the text, pictures and drawing under it are removed when the page is saved	Svärta permanent en del av sidan: text, bilder och teckningar under den tas bort när sidan sparas
+	Bottom Center	Nederkant mitten
+	Bottom Left	Nederkant vänster
+	Bottom Right	Nederkant höger
+	Change Mark	Ändra markering
+	Click a line of the PDF's text to change it, in a matching font	Klicka på en rad i PDF-filens text för att ändra den, med ett matchande teckensnitt
+	Click or drag to stamp	Klicka eller dra för att stämpla
+	Click or drag, then pick a picture	Klicka eller dra och välj sedan en bild
+	Click to add a note	Klicka för att lägga till en anteckning
+	Compress	Komprimera
+	Copied	Kopierat
+	Copied the PDF's text	PDF-filens text har kopierats
+	Copy All Text	Kopiera all text
+	Cover part of the page with white	Täck en del av sidan med vitt
+	Delete Mark	Ta bort markering
+	Drag a box and type; the text fits the box as you resize it	Dra en ruta och skriv; texten anpassas till rutan när du ändrar storlek
+	Drag on the page	Dra på sidan
+	Drag over text	Dra över text
+	Drag the part of the page to keep	Dra över den del av sidan som ska behållas
+	Draw Signature…	Rita signatur…
+	Draw freehand	Rita på fri hand
+	Draw your signature	Rita din signatur
+	Draw your signature once, then click or drag to sign	Rita din signatur en gång och klicka eller dra sedan för att signera
+	Edit Text	Redigera text
+	Every page becomes a picture: nothing on it can be changed or copied	Varje sida blir en bild: inget på den kan ändras eller kopieras
+	Export PDF…	Exportera PDF…
+	Export Pages as Images	Exportera sidor som bilder
+	Export Pages as Images…	Exportera sidor som bilder…
+	Extract Pages	Extrahera sidor
+	Extract Page…	Extrahera sida…
+	Find in PDF	Sök i PDF
+	Fit text to box	Anpassa text till ruta
+	Fit the page	Anpassa sidan
+	Flatten (every page becomes a picture)	Platta till (varje sida blir en bild)
+	Form Fields	Formulärfält
+	Header, Footer and Page Numbers…	Sidhuvud, sidfot och sidnummer…
+	Insert Pages from PDF	Infoga sidor från PDF
+	Insert Pages from PDF…	Infoga sidor från PDF…
+	Making the PDF…	Skapar PDF…
+	Mark Up	Märk upp
+	More Colors	Fler färger
+	No choices	Inga val
+	No matches	Inga träffar
+	No text there to edit: use Text Box to add some	Ingen text att redigera här: använd Textruta för att lägga till text
+	Note	Anteckning
+	PDF Edits	PDF-ändringar
+	PDF · as opened	PDF · som den öppnades
+	PDF · updates as you edit	PDF · uppdateras medan du redigerar
+	Page actions	Sidåtgärder
+	Page {n} of {N}	Sida {n} av {N}
+	Pages Panel	Sidpanel
+	Pages per file	Sidor per fil
+	Properties…	Egenskaper…
+	Redact	Maskera
+	Reenter password	Ange lösenordet igen
+	Resolution	Upplösning
+	Save Flattened…	Spara tillplattad…
+	Save PDF	Spara PDF
+	Save PDF As…	Spara PDF som…
+	Save the document as a PDF	Spara dokumentet som PDF
+	Save with Password	Spara med lösenord
+	Save with Password…	Spara med lösenord…
+	Saved {path}	Sparade {path}
+	Select, move and resize marks; drag over text to select it; fill in form fields	Markera, flytta och ändra storlek på markeringar; dra över text för att markera den; fyll i formulärfält
+	Signature	Signatur
+	Split…	Dela…
+	Stamp	Stämpel
+	The PDF view stopped working; restart WordCraft to bring it back.	PDF-vyn slutade fungera; starta om WordCraft för att få tillbaka den.
+	The font size follows the box: resize it and the text grows or shrinks to fill it	Teckenstorleken följer rutan: ändra storlek så växer eller krymper texten för att fylla den
+	The parts are saved next to the file you name, numbered	Delarna sparas bredvid filen du namnger, numrerade
+	The passwords don't match	Lösenorden stämmer inte överens
+	Top Center	Överkant mitten
+	Top Left	Överkant vänster
+	Top Right	Överkant höger
+	Type here	Skriv här
+	Watermark…	Vattenstämpel…
+	Whiteout	Vitmarkering
+	Wrote {n} files	Skrev {n} filer
+	{i} of {n}	{i} av {n}
+	{n} is the page number, {N} the number of pages	{n} är sidnumret, {N} antalet sidor

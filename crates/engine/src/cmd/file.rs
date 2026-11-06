@@ -246,8 +246,11 @@ fn open(s: &mut Session, v: &Value) -> CmdResult {
             Some(data) => super::insert::base64_decode(data),
             None => crate::io::read_file(path).ok(),
         };
-        s.pdf_source = bytes.map(std::sync::Arc::new);
+        s.pdf_source = bytes.and_then(|b| crate::io::pdf_plain(&b, password).ok()).map(|(b, _)| std::sync::Arc::new(b));
         s.pdf_source_rev = s.rev();
+        // PDF edits save back over the PDF (Save PDF), with the password it opened with.
+        s.pdf.path = Some(path.into());
+        s.pdf.password = if encrypted { password.map(str::to_string) } else { None };
     }
     // Like Word, a document opened with a password is saved with it again.
     if encrypted {

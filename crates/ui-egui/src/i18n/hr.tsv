@@ -2719,3 +2719,84 @@ preview	Title	Naslov
 	The document	Dokument
 	The document and its PDF side by side, page for page	Dokument i njegov PDF jedan pokraj drugoga, stranicu po stranicu
 	The document as a PDF	Dokument kao PDF
+	Angle	Kut
+	Black out part of the page for good: the text, pictures and drawing under it are removed when the page is saved	Trajno zacrni dio stranice: tekst, slike i crteži ispod uklanjaju se pri spremanju stranice
+	Bottom Center	Dolje u sredini
+	Bottom Left	Dolje lijevo
+	Bottom Right	Dolje desno
+	Change Mark	Promijeni oznaku
+	Click a line of the PDF's text to change it, in a matching font	Kliknite redak teksta PDF-a da biste ga promijenili, odgovarajućim fontom
+	Click or drag to stamp	Kliknite ili povucite za pečat
+	Click or drag, then pick a picture	Kliknite ili povucite, a zatim odaberite sliku
+	Click to add a note	Kliknite za dodavanje bilješke
+	Compress	Komprimiraj
+	Copied	Kopirano
+	Copied the PDF's text	Tekst PDF-a kopiran
+	Copy All Text	Kopiraj sav tekst
+	Cover part of the page with white	Prekrij dio stranice bijelom bojom
+	Delete Mark	Izbriši oznaku
+	Drag a box and type; the text fits the box as you resize it	Povucite okvir i upišite; tekst se prilagođava okviru dok mu mijenjate veličinu
+	Drag on the page	Povucite po stranici
+	Drag over text	Povucite preko teksta
+	Drag the part of the page to keep	Povucite dio stranice koji želite zadržati
+	Draw Signature…	Nacrtaj potpis…
+	Draw freehand	Crtanje slobodnom rukom
+	Draw your signature	Nacrtajte svoj potpis
+	Draw your signature once, then click or drag to sign	Jednom nacrtajte potpis, a zatim kliknite ili povucite za potpisivanje
+	Edit Text	Uredi tekst
+	Every page becomes a picture: nothing on it can be changed or copied	Svaka stranica postaje slika: ništa se na njoj ne može mijenjati ni kopirati
+	Export PDF…	Izvezi PDF…
+	Export Pages as Images	Izvezi stranice kao slike
+	Export Pages as Images…	Izvezi stranice kao slike…
+	Extract Pages	Izdvoji stranice
+	Extract Page…	Izdvoji stranicu…
+	Find in PDF	Traži u PDF-u
+	Fit text to box	Prilagodi tekst okviru
+	Fit the page	Prilagodi stranicu
+	Flatten (every page becomes a picture)	Spljošti (svaka stranica postaje slika)
+	Form Fields	Polja obrasca
+	Header, Footer and Page Numbers…	Zaglavlje, podnožje i brojevi stranica…
+	Insert Pages from PDF	Umetni stranice iz PDF-a
+	Insert Pages from PDF…	Umetni stranice iz PDF-a…
+	Making the PDF…	Izrada PDF-a…
+	Mark Up	Označi
+	More Colors	Više boja
+	No choices	Nema izbora
+	No matches	Nema podudaranja
+	No text there to edit: use Text Box to add some	Ovdje nema teksta za uređivanje: dodajte ga pomoću tekstnog okvira
+	Note	Bilješka
+	PDF Edits	Promjene PDF-a
+	PDF · as opened	PDF · kako je otvoren
+	PDF · updates as you edit	PDF · ažurira se dok uređujete
+	Page actions	Radnje sa stranicom
+	Page {n} of {N}	Stranica {n} od {N}
+	Pages Panel	Okno stranica
+	Pages per file	Stranica po datoteci
+	Properties…	Svojstva…
+	Redact	Zacrni
+	Reenter password	Ponovno unesite lozinku
+	Resolution	Razlučivost
+	Save Flattened…	Spremi spljošteno…
+	Save PDF	Spremi PDF
+	Save PDF As…	Spremi PDF kao…
+	Save the document as a PDF	Spremi dokument kao PDF
+	Save with Password	Spremi s lozinkom
+	Save with Password…	Spremi s lozinkom…
+	Saved {path}	Spremljeno: {path}
+	Select, move and resize marks; drag over text to select it; fill in form fields	Odaberite, premjestite i promijenite veličinu oznaka; povucite preko teksta da biste ga odabrali; ispunite polja obrasca
+	Signature	Potpis
+	Split…	Podijeli…
+	Stamp	Pečat
+	The PDF view stopped working; restart WordCraft to bring it back.	Prikaz PDF-a prestao je raditi; ponovno pokrenite WordCraft da biste ga vratili.
+	The font size follows the box: resize it and the text grows or shrinks to fill it	Veličina fonta prati okvir: promijenite mu veličinu i tekst se povećava ili smanjuje da ga ispuni
+	The parts are saved next to the file you name, numbered	Dijelovi se spremaju pokraj datoteke koju imenujete, numerirani
+	The passwords don't match	Lozinke se ne podudaraju
+	Top Center	Gore u sredini
+	Top Left	Gore lijevo
+	Top Right	Gore desno
+	Type here	Upišite ovdje
+	Watermark…	Vodeni žig…
+	Whiteout	Bijeljenje
+	Wrote {n} files	Zapisano datoteka: {n}
+	{i} of {n}	{i} od {n}
+	{n} is the page number, {N} the number of pages	{n} je broj stranice, {N} broj stranica

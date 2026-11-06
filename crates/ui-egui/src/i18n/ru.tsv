@@ -2717,3 +2717,84 @@ preview	Title	Пример
 	The document	Документ
 	The document and its PDF side by side, page for page	Документ и его PDF рядом, страница к странице
 	The document as a PDF	Документ в виде PDF
+	Angle	Угол
+	Black out part of the page for good: the text, pictures and drawing under it are removed when the page is saved	Закрасить часть страницы навсегда: текст, рисунки и графика под ней удаляются при сохранении страницы
+	Bottom Center	Внизу по центру
+	Bottom Left	Внизу слева
+	Bottom Right	Внизу справа
+	Change Mark	Изменить пометку
+	Click a line of the PDF's text to change it, in a matching font	Щёлкните строку текста PDF, чтобы изменить её подходящим шрифтом
+	Click or drag to stamp	Щёлкните или перетащите, чтобы поставить штамп
+	Click or drag, then pick a picture	Щёлкните или перетащите, затем выберите рисунок
+	Click to add a note	Щёлкните, чтобы добавить заметку
+	Compress	Сжать
+	Copied	Скопировано
+	Copied the PDF's text	Текст PDF скопирован
+	Copy All Text	Копировать весь текст
+	Cover part of the page with white	Закрыть часть страницы белым
+	Delete Mark	Удалить пометку
+	Drag a box and type; the text fits the box as you resize it	Нарисуйте рамку и введите текст; текст подстраивается под размер рамки
+	Drag on the page	Перетащите по странице
+	Drag over text	Перетащите по тексту
+	Drag the part of the page to keep	Выделите часть страницы, которую нужно оставить
+	Draw Signature…	Нарисовать подпись…
+	Draw freehand	Рисовать от руки
+	Draw your signature	Нарисуйте свою подпись
+	Draw your signature once, then click or drag to sign	Нарисуйте подпись один раз, затем щёлкните или перетащите, чтобы подписать
+	Edit Text	Изменить текст
+	Every page becomes a picture: nothing on it can be changed or copied	Каждая страница станет рисунком: на ней ничего нельзя будет изменить или скопировать
+	Export PDF…	Экспорт в PDF…
+	Export Pages as Images	Экспорт страниц в изображения
+	Export Pages as Images…	Экспорт страниц в изображения…
+	Extract Pages	Извлечь страницы
+	Extract Page…	Извлечь страницу…
+	Find in PDF	Найти в PDF
+	Fit text to box	Вписать текст в рамку
+	Fit the page	По размеру страницы
+	Flatten (every page becomes a picture)	Сделать плоским (каждая страница станет рисунком)
+	Form Fields	Поля формы
+	Header, Footer and Page Numbers…	Колонтитулы и номера страниц…
+	Insert Pages from PDF	Вставить страницы из PDF
+	Insert Pages from PDF…	Вставить страницы из PDF…
+	Making the PDF…	Создание PDF…
+	Mark Up	Пометки
+	More Colors	Другие цвета
+	No choices	Нет вариантов
+	No matches	Нет совпадений
+	No text there to edit: use Text Box to add some	Здесь нет текста для изменения: добавьте текст с помощью надписи
+	Note	Заметка
+	PDF Edits	Изменения PDF
+	PDF · as opened	PDF · как открыт
+	PDF · updates as you edit	PDF · обновляется при редактировании
+	Page actions	Действия со страницей
+	Page {n} of {N}	Страница {n} из {N}
+	Pages Panel	Панель страниц
+	Pages per file	Страниц в файле
+	Properties…	Свойства…
+	Redact	Скрыть данные
+	Reenter password	Повторите пароль
+	Resolution	Разрешение
+	Save Flattened…	Сохранить плоским…
+	Save PDF	Сохранить PDF
+	Save PDF As…	Сохранить PDF как…
+	Save the document as a PDF	Сохранить документ как PDF
+	Save with Password	Сохранить с паролем
+	Save with Password…	Сохранить с паролем…
+	Saved {path}	Сохранено: {path}
+	Select, move and resize marks; drag over text to select it; fill in form fields	Выбирайте, перемещайте и изменяйте размер пометок; перетащите по тексту, чтобы выделить его; заполняйте поля форм
+	Signature	Подпись
+	Split…	Разделить…
+	Stamp	Штамп
+	The PDF view stopped working; restart WordCraft to bring it back.	Просмотр PDF перестал работать; перезапустите WordCraft, чтобы вернуть его.
+	The font size follows the box: resize it and the text grows or shrinks to fill it	Размер шрифта следует за рамкой: при изменении её размера текст увеличивается или уменьшается
+	The parts are saved next to the file you name, numbered	Части сохраняются рядом с указанным файлом и нумеруются
+	The passwords don't match	Пароли не совпадают
+	Top Center	Вверху по центру
+	Top Left	Вверху слева
+	Top Right	Вверху справа
+	Type here	Введите текст
+	Watermark…	Подложка…
+	Whiteout	Замазка
+	Wrote {n} files	Записано файлов: {n}
+	{i} of {n}	{i} из {n}
+	{n} is the page number, {N} the number of pages	{n} — номер страницы, {N} — число страниц
