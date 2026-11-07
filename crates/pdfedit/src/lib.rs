@@ -36,6 +36,36 @@ use std::sync::Arc;
 pub use apply::{apply, decrypt, extract, has_encryption, is_encrypted, mark_pages, split};
 pub use forms::{Field, FieldKind, fields};
 
+/// The font size a text box's or stamp's text is drawn at: its own, or the size that fits the
+/// box (a text box with `fit`, every stamp). `None` for other marks.
+pub fn text_size(mark: &Mark) -> Option<f32> {
+    match mark {
+        Mark::TextBox { rect, text, size, font, bold, italic, fit, .. } => {
+            let r = rect.normalized();
+            Some(if *fit {
+                draw::Font::new(font, *bold, *italic).fit(text, (r.w - 6.0).max(1.0), (r.h - 6.0).max(1.0), 200.0)
+            } else {
+                size.clamp(2.0, 400.0)
+            })
+        }
+        Mark::Stamp { rect, text, .. } => {
+            let r = rect.normalized();
+            let border = (r.h * 0.06).clamp(1.0, 6.0);
+            Some(draw::Font::new(DEFAULT_FONT, true, false).fit(text, (r.w - 6.0 * border).max(1.0), (r.h - 4.0 * border).max(1.0), 200.0))
+        }
+        _ => None,
+    }
+}
+
+/// A random number, for names that must not clash with those of another session.
+pub fn nonce() -> u64 {
+    let mut b = [0u8; 8];
+    if getrandom::fill(&mut b).is_err() {
+        return 0x5EED_CAFE;
+    }
+    u64::from_le_bytes(b)
+}
+
 /// An RGB colour.
 pub type Color = [u8; 3];
 

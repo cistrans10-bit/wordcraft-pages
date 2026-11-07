@@ -31,6 +31,7 @@ pub mod outline;
 pub mod page;
 pub mod pages;
 pub mod pdf;
+pub mod pdf_link;
 pub mod para;
 pub mod paste;
 pub mod phonetic;

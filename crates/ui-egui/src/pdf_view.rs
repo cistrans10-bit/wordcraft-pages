@@ -67,12 +67,15 @@ pub(crate) enum Source {
 }
 
 pub(crate) enum Job {
-    /// Show the PDF of `source` (known by `base`: the document state it is) with `ops` applied.
+    /// Show the PDF of `source` (known by `base`: the document state it is) with `ops` applied;
+    /// `all` is every edit, to find each mark's page (over the document's export, `ops` leaves
+    /// out the marks twinned in the document: they are in the export).
     Show {
         version: u64,
         base: (u64, u64),
         source: Source,
         ops: Arc<Vec<Op>>,
+        all: Arc<Vec<Op>>,
     },
     Render {
         version: u64,
@@ -132,7 +135,7 @@ impl WorkerState {
             s.view.as_ref().filter(|(sv, _)| *sv == v).map(|(_, view)| view)
         }
         match job {
-            Job::Show { version, base, source, ops } => {
+            Job::Show { version, base, source, ops, all } => {
                 let exported = matches!(source, Source::Export(_));
                 let bytes = match (&self.base, source) {
                     (Some((k, b)), _) if *k == base => Ok(b.clone()),
@@ -141,12 +144,16 @@ impl WorkerState {
                 };
                 let made = bytes.and_then(|b| {
                     self.base = Some((base, b.clone()));
-                    if ops.is_empty() {
+                    if all.is_empty() {
                         return Ok((b.as_ref().clone(), HashMap::new()));
+                    }
+                    let marks = wordcraft_engine::pdfedit::mark_pages(&b, &all);
+                    if ops.is_empty() {
+                        return Ok((b.as_ref().clone(), marks));
                     }
                     let opts = wordcraft_engine::pdfedit::SaveOptions { compress: false, ..Default::default() };
                     let edited = wordcraft_engine::pdfedit::apply(&b, &ops, &opts).map_err(|e| e.to_string())?;
-                    Ok((edited, wordcraft_engine::pdfedit::mark_pages(&b, &ops)))
+                    Ok((edited, marks))
                 });
                 match made.and_then(|(b, marks)| {
                     let fields = wordcraft_engine::pdfedit::fields(&b).unwrap_or_default();
@@ -375,15 +382,17 @@ pub fn logic(app: &mut WordApp, ctx: &egui::Context) {
         if original.is_some() || new_document || settled || same_document {
             // The PDF the edits apply to, known by the document state it shows.
             let base = if original.is_some() { (doc_state.0, app.session.pdf_source_rev) } else { doc_state };
+            // Over the document's export, marks twinned in it are in the export already.
+            let ops = Arc::new(wordcraft_engine::cmd::pdf_link::shown_ops(&app.session, original.is_none()));
+            let all = Arc::new(app.session.pdf.ops.clone());
             let source = match original {
                 Some(bytes) => Source::Bytes(bytes),
                 None => Source::Export(Box::new(app.session.doc.clone())),
             };
-            let ops = Arc::new(app.session.pdf.ops.clone());
             pane.version += 1;
             let version = pane.version;
             if let Some(w) = pane.worker.as_mut()
-                && w.send(Job::Show { version, base, source, ops })
+                && w.send(Job::Show { version, base, source, ops, all })
             {
                 pane.requested = Some(want);
             } else {

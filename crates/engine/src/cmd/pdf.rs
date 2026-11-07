@@ -32,6 +32,13 @@ pub struct PdfEdits {
     /// Bumped on every change, so the PDF view knows to show the PDF again.
     pub rev: u64,
     pub saved_rev: u64,
+    /// The marks' twins in the document, by mark id ([`super::pdf_link`]).
+    pub(crate) twins: std::collections::HashMap<u64, super::pdf_link::Twin>,
+    /// The edits' revision the twins follow.
+    pub(crate) synced_rev: u64,
+    /// This session's mark in the twins' names (so another session's twins are never taken
+    /// for this one's).
+    pub(crate) nonce: u64,
 }
 
 impl PdfEdits {
@@ -81,8 +88,11 @@ pub fn base(s: &Session) -> Result<Arc<Vec<u8>>, String> {
 
 /// The edited PDF, as Save PDF writes it.
 pub fn edited(s: &Session, opts: &SaveOptions) -> Result<Vec<u8>, String> {
+    let export = s.pdf_source.is_none() || s.rev() != s.pdf_source_rev;
     let base = base(s)?;
-    wordcraft_pdfedit::apply(&base, &s.pdf.ops, opts).map_err(|e| e.to_string())
+    // Over the document's export, marks twinned in the document are there already.
+    let ops = super::pdf_link::shown_ops(s, export);
+    wordcraft_pdfedit::apply(&base, &ops, opts).map_err(|e| e.to_string())
 }
 
 fn color(v: &Value, k: &str, default: Color) -> Color {
@@ -703,6 +713,7 @@ pub fn specs() -> Vec<CommandSpec> {
         .params(r#"{"text": string}"#)
         .pure(),
         CommandSpec::new("pdf.edits", "PDF Edits", "PDF", |s, _| {
+            let twins = super::pdf_link::describe(s);
             let list: Vec<Value> = s
                 .pdf
                 .ops
@@ -710,7 +721,7 @@ pub fn specs() -> Vec<CommandSpec> {
                 .map(|o| match o {
                     Op::Mark { id, page, mark } => {
                         let b = mark.bounds();
-                        json!({"id": id, "page": page + 1, "kind": mark.kind(), "rect": [b.x, b.y, b.w, b.h], "text": mark.text(), "describe": o.describe()})
+                        json!({"id": id, "page": page + 1, "kind": mark.kind(), "rect": [b.x, b.y, b.w, b.h], "text": mark.text(), "describe": o.describe(), "docx": twins.get(id)})
                     }
                     o => json!({"describe": o.describe()}),
                 })

@@ -1418,6 +1418,10 @@ impl Session {
                 if spec.mutates && !matches!(id, "edit.undo" | "edit.redo") {
                     self.note_edit();
                 }
+                // PDF edits show in the document too.
+                if id.starts_with("pdf.") {
+                    crate::cmd::pdf_link::sync(self);
+                }
                 // Outline view: collapsed headings follow edits; the caret stays where it shows.
                 crate::cmd::outline::after_command(self, &sel_before);
                 // Extra selected objects last until something else is edited or selected.

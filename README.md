@@ -62,6 +62,15 @@ PDF goes straight to PDF mode. Everything below works on any PDF and on the docu
   with it again), flattened (every page a picture), compressed. Undo and Redo (Ctrl+Z, Ctrl+Y)
   step through every PDF edit.
 
+**PDF edits show in the document too.** A line, arrow, rectangle, oval, ink, signature,
+picture, text box, stamp, whiteout or redaction drawn on the PDF appears in the DOCX as a
+floating object in front of the text, at the same place on the same page; highlighting,
+underlining or striking text on the PDF formats the same words in the DOCX, and Edit Text
+changes them there. Move, resize, recolour, retype or delete the mark, or undo it, and the
+document follows; each such change is one undo step in the document, and the twins are saved
+with the .docx. (Notes stay in the PDF; marks made after pages were turned, moved, deleted,
+inserted or cropped stay in the PDF, since its pages no longer match the document's.)
+
 Edits are kept as a list and applied over the PDF as it is shown, so each one stays editable until
 you save. They are the `pdf.*` commands (`wordcraft-cli commands`, MCP), so scripts and agents can
 do all of this too; the editing lives in [`crates/pdfedit`](crates/pdfedit) (using
