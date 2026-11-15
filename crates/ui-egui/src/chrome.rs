@@ -372,9 +372,9 @@ pub fn title_bar(app: &mut WordApp, ui: &mut Ui) {
                 format!(
                     "{} — {}",
                     app.title_stem(),
-                    if app.session.dirty {
+                    if app.session.dirty || app.session.pdf.dirty() {
                         tl!("Edited")
-                    } else if app.session.path.is_some() {
+                    } else if app.session.path.is_some() || app.session.pdf.path.is_some() {
                         tl!("Saved")
                     } else {
                         tl!("Not saved")

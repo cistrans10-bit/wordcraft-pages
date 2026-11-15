@@ -298,7 +298,9 @@ pub struct PdfPane {
     /// The page filling most of the view, last frame.
     pub page: usize,
     /// The page both sides last agreed on.
-    synced: Option<usize>,
+    synced: Option<(usize, f32)>,
+    /// A place (page, how far down it) to bring to the top of the view next frame.
+    scroll_to_pos: Option<(usize, f32)>,
     /// The view's rect last frame (whether the pointer is over it leads the page sync).
     pub(crate) rect: Option<Rect>,
     /// Width of the view beside the page (DOCX + PDF).
@@ -309,6 +311,9 @@ pub struct PdfPane {
     pub ed: crate::pdf_edit::Editor,
     /// The last document seen: one opened from a PDF opens in PDF mode.
     seen_document: Option<u64>,
+    /// The document's own zoom (fit, multi-page, single column), kept while it is fitted to its
+    /// half of DOCX + PDF.
+    doc_fit: Option<(String, bool, bool)>,
 }
 
 impl PdfPane {
@@ -352,6 +357,24 @@ pub fn logic(app: &mut WordApp, ctx: &egui::Context) {
         app.pdf.ed = Default::default();
         if app.session.pdf_source.is_some() && app.pdf.mode == PdfMode::Docx {
             app.pdf.set_mode(PdfMode::Pdf);
+        }
+    }
+    // Side by side, the page fits its half (as the PDF fits its own), so both show whole and
+    // at the same size; the document's zoom comes back with the other modes.
+    let side = app.pdf.mode == PdfMode::Side;
+    if side && app.pdf.doc_fit.is_none() {
+        let v = &mut app.session.view;
+        app.pdf.doc_fit = Some((v.fit.clone(), v.multi_page, v.single_column));
+        v.fit = "pageWidth".into();
+        v.multi_page = false;
+        v.single_column = true;
+    } else if !side && let Some((fit, multi, single)) = app.pdf.doc_fit.take() {
+        let v = &mut app.session.view;
+        // Unless the user chose another zoom meanwhile.
+        if v.fit == "pageWidth" {
+            v.fit = fit;
+            v.multi_page = multi;
+            v.single_column = single;
         }
     }
     let pane = &mut app.pdf;
@@ -456,32 +479,31 @@ fn app_has_document(app: &WordApp) -> bool {
     app.has_document()
 }
 
-/// The document page filling most of the editing view, from last frame's layout.
-fn doc_page(app: &WordApp) -> Option<usize> {
+/// Where the editing view's top is: the page there and how far down it (0 its top, 1 its
+/// bottom), from last frame's layout.
+fn doc_pos(app: &WordApp) -> Option<(usize, f32)> {
     let vp = app.canvas.viewport?;
-    let mut best: Option<(f32, usize)> = None;
-    for (i, r) in app.canvas.page_rects.iter().enumerate() {
-        let h = (r.max.y.min(vp.max.y) - r.min.y.max(vp.min.y)).max(0.0);
-        let w = (r.max.x.min(vp.max.x) - r.min.x.max(vp.min.x)).max(0.0);
-        if h * w > best.map_or(0.0, |b| b.0) {
-            best = Some((h * w, i));
-        }
-    }
-    best.map(|b| b.1)
+    let (i, r) = app.canvas.page_rects.iter().enumerate().find(|(_, r)| r.max.y > vp.min.y + 1.0)?;
+    Some((i, ((vp.min.y - r.min.y) / r.height().max(1.0)).clamp(-0.05, 1.0)))
 }
 
-/// Scroll the editing view so page `page` is at its top.
-fn scroll_doc_to(app: &mut WordApp, page: usize) {
+/// Scroll the editing view so that place is at its top.
+fn scroll_doc_to(app: &mut WordApp, (page, frac): (usize, f32)) {
     let (Some(vp), Some(r)) = (app.canvas.viewport, app.canvas.page_rects.get(page)) else { return };
-    let y = app.canvas.scroll_offset.y + (r.min.y - vp.min.y) - 16.0;
+    let y = app.canvas.scroll_offset.y + (r.min.y + frac * r.height() - vp.min.y);
     app.canvas.scroll_request = Some(vec2(app.canvas.scroll_offset.x, y.max(0.0)));
+}
+
+/// Two places far enough apart to scroll for.
+fn moved(a: Option<(usize, f32)>, b: (usize, f32)) -> bool {
+    a.is_none_or(|a| a.0 != b.0 || (a.1 - b.1).abs() > 0.012)
 }
 
 /// The view beside the page (DOCX + PDF): a resizable panel on the right.
 pub fn show_side(app: &mut WordApp, ui: &mut Ui) {
     let t = Tokens::get(ui.ctx());
     let full = ui.available_width();
-    let width = app.pdf.side_width.unwrap_or(full * 0.45).clamp(240.0, (full - 320.0).max(240.0));
+    let width = app.pdf.side_width.unwrap_or(full * 0.5).clamp(240.0, (full - 320.0).max(240.0));
     let resp = egui::Panel::right("pdf_view")
         .default_size(width)
         .min_size(240.0)
@@ -548,13 +570,12 @@ fn view(app: &mut WordApp, ui: &mut Ui) {
     let side = app.pdf.mode == PdfMode::Side;
     if side
         && !pointer_over_pdf
-        && let Some(p) = doc_page(app)
-        && app.pdf.synced != Some(p)
+        && app.pdf.scroll_to.is_none()
+        && let Some(p) = doc_pos(app)
+        && moved(app.pdf.synced, p)
     {
         app.pdf.synced = Some(p);
-        if p != app.pdf.page {
-            app.pdf.scroll_to = Some(p.min(sizes.len().saturating_sub(1)));
-        }
+        app.pdf.scroll_to_pos = Some((p.0.min(sizes.len().saturating_sub(1)), p.1));
     }
 
     // Dragging on a page draws (or selects), so it doesn't scroll.
@@ -567,13 +588,20 @@ fn view(app: &mut WordApp, ui: &mut Ui) {
         && let Some(top) = tops.get(p)
     {
         area = area.vertical_scroll_offset((top - GAP).max(0.0));
+        app.pdf.scroll_to_pos = None;
+    } else if let Some((p, frac)) = app.pdf.scroll_to_pos.take()
+        && let (Some(top), Some(size)) = (tops.get(p), sizes.get(p))
+    {
+        area = area.vertical_scroll_offset((top + frac * size.1 * scale).max(0.0));
     }
+    let mut view_top = 0.0f32;
     let mut wanted: Vec<(usize, f32)> = Vec::new();
     let mut visible_best: Option<(f32, usize)> = None;
     let mut visible_range = (usize::MAX, 0usize);
     let mut on_screen: Vec<(usize, Rect)> = Vec::new();
     area.show_viewport(ui, |ui, viewport| {
         let origin = ui.min_rect().min;
+        view_top = viewport.min.y;
         let avail_w = ui.available_width().max(content_w);
         ui.allocate_space(vec2(avail_w, content_h));
         let painter = ui.painter().clone();
@@ -613,10 +641,14 @@ fn view(app: &mut WordApp, ui: &mut Ui) {
         app.pdf.page = p;
     }
     // The PDF leads while the pointer is over it.
-    if side && pointer_over_pdf && app.pdf.synced != Some(app.pdf.page) {
-        app.pdf.synced = Some(app.pdf.page);
-        let p = app.pdf.page;
-        scroll_doc_to(app, p);
+    if side && pointer_over_pdf {
+        let p = tops.iter().rposition(|t| *t <= view_top + 1.0).unwrap_or(0);
+        let h = sizes.get(p).map_or(1.0, |s| s.1 * scale).max(1.0);
+        let pos = (p, ((view_top - tops.get(p).copied().unwrap_or(0.0)) / h).clamp(-0.05, 1.0));
+        if moved(app.pdf.synced, pos) {
+            app.pdf.synced = Some(pos);
+            scroll_doc_to(app, pos);
+        }
     }
     // Ask for the pages in view (most visible last, so the worker draws it first).
     wanted.sort_by(|a, b| a.1.total_cmp(&b.1));

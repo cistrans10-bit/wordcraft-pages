@@ -1208,8 +1208,12 @@ pub fn toolbar(app: &mut WordApp, ui: &mut Ui, t: &Tokens) {
         });
         ui.horizontal_wrapped(|ui| {
             ui.spacing_mut().item_spacing = vec2(6.0, 2.0);
+            // The row keeps its height with nothing in it, so the pages don't jump between tools.
+            ui.allocate_exact_size(vec2(0.0, 22.0), Sense::hover());
             options(app, ui);
-            ui.separator();
+        });
+        ui.horizontal_wrapped(|ui| {
+            ui.spacing_mut().item_spacing = vec2(6.0, 2.0);
             find_bar(app, ui);
             ui.separator();
             let (can_undo, can_redo) = (app.session.pdf.can_undo(), app.session.pdf.can_redo());
