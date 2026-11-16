@@ -15,9 +15,11 @@
 mod convert;
 mod extract;
 mod fonts;
+mod reflow;
 mod view;
 
 pub use convert::to_docx;
+pub use reflow::{FlowOptions, to_docx_flowing};
 pub use view::{PageImage, PdfView};
 
 /// A line of a page's text (one segment of it: a table cell or column is its own line), in page

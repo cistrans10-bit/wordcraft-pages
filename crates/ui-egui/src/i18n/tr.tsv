@@ -2797,3 +2797,12 @@ preview	Title	Örnek
 	Wrote {n} files	{n} dosya yazıldı
 	{i} of {n}	{i} / {n}
 	{n} is the page number, {N} the number of pages	{n} sayfa numarası, {N} sayfa sayısıdır
+	Convert to DOCX	DOCX'e Dönüştür
+	Convert to DOCX…	DOCX'e Dönüştür…
+	Save the PDF as a Word document	PDF'yi Word belgesi olarak kaydet
+	Keep the layout	Düzeni koru
+	Text, pictures and drawing where they are on each page, page for page	Metin, resimler ve çizimler her sayfada yerinde, sayfa sayfa
+	Flowing text	Akan metin
+	Plain paragraphs that reflow and edit easily; the layout isn't kept	Kolayca akan ve düzenlenen düz paragraflar; düzen korunmaz
+	Include pictures	Resimleri dahil et
+	A page break after each page	Her sayfadan sonra sayfa sonu

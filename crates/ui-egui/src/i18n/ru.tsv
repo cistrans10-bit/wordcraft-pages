@@ -2798,3 +2798,12 @@ preview	Title	Пример
 	Wrote {n} files	Записано файлов: {n}
 	{i} of {n}	{i} из {n}
 	{n} is the page number, {N} the number of pages	{n} — номер страницы, {N} — число страниц
+	Convert to DOCX	Преобразовать в DOCX
+	Convert to DOCX…	Преобразовать в DOCX…
+	Save the PDF as a Word document	Сохранить PDF как документ Word
+	Keep the layout	Сохранить макет
+	Text, pictures and drawing where they are on each page, page for page	Текст, рисунки и графика на своих местах, страница за страницей
+	Flowing text	Сплошной текст
+	Plain paragraphs that reflow and edit easily; the layout isn't kept	Обычные абзацы, которые легко перетекают и редактируются; макет не сохраняется
+	Include pictures	Включить рисунки
+	A page break after each page	Разрыв страницы после каждой страницы

@@ -140,3 +140,57 @@ fn a_view_moves_to_another_thread() {
     send(&view);
     assert!(std::thread::spawn(move || view.render(0, 0.2).is_ok()).join().unwrap());
 }
+
+/// A paragraph wrapped over three lines, with a word hyphenated across a line end.
+fn wrapped_pdf() -> Vec<u8> {
+    let page = "BT /F1 20 Tf 72 760 Td (A title) Tj ET\n\
+                BT /F1 11 Tf 72 720 Td (The first line of a para-) Tj ET\n\
+                BT /F1 11 Tf 72 706 Td (graph that wraps over) Tj ET\n\
+                BT /F1 11 Tf 72 692 Td (three lines.) Tj ET\n\
+                BT /F1 11 Tf 72 600 Td (Another paragraph.) Tj ET\n";
+    let objs = [
+        "<< /Type /Catalog /Pages 2 0 R >>".to_string(),
+        "<< /Type /Pages /Kids [3 0 R] /Count 1 >>".to_string(),
+        "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.3 841.9] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>".to_string(),
+        "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>".to_string(),
+        format!("<< /Length {} >>\nstream\n{page}endstream", page.len()),
+    ];
+    let mut s = String::from("%PDF-1.4\n");
+    let mut offsets = Vec::new();
+    for (i, o) in objs.iter().enumerate() {
+        offsets.push(s.len());
+        s.push_str(&format!("{} 0 obj\n{o}\nendobj\n", i + 1));
+    }
+    let xref = s.len();
+    s.push_str(&format!("xref\n0 {}\n0000000000 65535 f \n", objs.len() + 1));
+    for o in offsets {
+        s.push_str(&format!("{o:010} 00000 n \n"));
+    }
+    s.push_str(&format!("trailer\n<< /Size {} /Root 1 0 R >>\nstartxref\n{xref}\n%%EOF\n", objs.len() + 1));
+    s.into_bytes()
+}
+
+#[test]
+fn flowing_text_joins_wrapped_lines_into_paragraphs() {
+    let docx = crate::to_docx_flowing(&wrapped_pdf(), crate::FlowOptions::default()).unwrap();
+    let xml = document_xml(&docx);
+    let paras: Vec<&str> = xml.split("<w:p>").skip(1).collect();
+    assert_eq!(paras.len(), 3, "{xml}");
+    assert!(paras[0].contains("A title") && paras[0].contains("<w:sz w:val=\"40\"/>"), "{}", paras[0]);
+    assert!(paras[1].contains("The first line of a paragraph that wraps over three lines."), "{}", paras[1]);
+    assert!(paras[2].contains("Another paragraph."));
+    // A4, 2 cm margins; no section per page.
+    assert!(xml.contains("w:w=\"11906\"") && xml.contains("w:left=\"1134\"") && xml.matches("<w:sectPr>").count() == 1);
+}
+
+#[test]
+fn flowing_text_breaks_between_pages_when_asked() {
+    let pdf = two_page_pdf();
+    let with = document_xml(&crate::to_docx_flowing(&pdf, crate::FlowOptions { images: true, page_breaks: true }).unwrap());
+    let without = document_xml(&crate::to_docx_flowing(&pdf, crate::FlowOptions { images: true, page_breaks: false }).unwrap());
+    assert_eq!(with.matches("w:type=\"page\"").count(), 1);
+    assert_eq!(without.matches("w:type=\"page\"").count(), 0);
+    // Cells of one row stay separate paragraphs.
+    assert!(with.contains(">Key<") && with.contains(">Action<"), "{with}");
+    assert!(crate::to_docx_flowing(b"%PDF-1.4 junk", crate::FlowOptions::default()).is_err());
+}

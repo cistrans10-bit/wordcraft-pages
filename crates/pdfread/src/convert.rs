@@ -59,26 +59,26 @@ pub fn to_docx(bytes: &[u8]) -> Result<Vec<u8>, Error> {
 // ── The package ───────────────────────────────────────────────────────
 
 #[derive(Default)]
-struct Package {
+pub(crate) struct Package {
     /// word/media/<name>, with its bytes.
     media: Vec<(String, Vec<u8>)>,
     next_id: u32,
 }
 
 impl Package {
-    fn id(&mut self) -> u32 {
+    pub(crate) fn id(&mut self) -> u32 {
         self.next_id = self.next_id.saturating_add(1);
         self.next_id
     }
 
     /// Adds a picture; its relationship id.
-    fn add_media(&mut self, data: Vec<u8>, ext: &str) -> String {
+    pub(crate) fn add_media(&mut self, data: Vec<u8>, ext: &str) -> String {
         let n = self.media.len() + 1;
         self.media.push((format!("image{n}.{ext}"), data));
         format!("rIdImg{n}")
     }
 
-    fn write(self, body: &str) -> Result<Vec<u8>, Error> {
+    pub(crate) fn write(self, body: &str) -> Result<Vec<u8>, Error> {
         let mut zip = zip::ZipWriter::new(std::io::Cursor::new(Vec::new()));
         let opts = zip::write::SimpleFileOptions::default().compression_method(zip::CompressionMethod::Deflated);
         let stored = zip::write::SimpleFileOptions::default().compression_method(zip::CompressionMethod::Stored);
@@ -279,46 +279,46 @@ fn overlaps(a: &Rect, b: &Rect) -> bool {
 // ── Text: words, lines, paragraphs ────────────────────────────────────
 
 #[derive(Debug, Clone, PartialEq)]
-struct Style {
-    font: Arc<str>,
+pub(crate) struct Style {
+    pub font: Arc<str>,
     /// Half points, as w:sz counts.
-    half_points: u32,
-    bold: bool,
-    italic: bool,
-    color: [u8; 3],
+    pub half_points: u32,
+    pub bold: bool,
+    pub italic: bool,
+    pub color: [u8; 3],
     /// Character spacing, twentieths of a point (w:spacing): what makes the font the document
     /// shows the text in set as wide as the PDF's did.
     spacing: i32,
 }
 
 #[derive(Debug, Clone)]
-struct Word {
-    text: String,
-    style: Style,
-    left: f64,
-    right: f64,
+pub(crate) struct Word {
+    pub text: String,
+    pub style: Style,
+    pub left: f64,
+    pub right: f64,
 }
 
 /// Words on one line with ordinary spaces between them.
 #[derive(Debug, Clone, Default)]
-struct Seg {
-    words: Vec<Word>,
+pub(crate) struct Seg {
+    pub words: Vec<Word>,
 }
 
 impl Seg {
-    fn left(&self) -> f64 {
+    pub(crate) fn left(&self) -> f64 {
         self.words.first().map_or(0.0, |w| w.left)
     }
-    fn right(&self) -> f64 {
+    pub(crate) fn right(&self) -> f64 {
         self.words.last().map_or(0.0, |w| w.right)
     }
 }
 
 #[derive(Debug, Clone)]
-struct Line {
-    base: f64,
-    size: f64,
-    segs: Vec<Seg>,
+pub(crate) struct Line {
+    pub base: f64,
+    pub size: f64,
+    pub segs: Vec<Seg>,
 }
 
 impl Line {
@@ -381,7 +381,7 @@ impl Para {
 
 /// Letters → lines: letters whose baselines lie within a third of their size of the line's top
 /// baseline, left to right, split into words (a space, or a gap) and segments (two ems or more).
-fn build_lines(letters: &[Letter]) -> Vec<Line> {
+pub(crate) fn build_lines(letters: &[Letter]) -> Vec<Line> {
     let scales = font_scales(letters);
     let mut sorted: Vec<&Letter> = letters.iter().filter(|l| l.base.is_finite() && l.x0.is_finite() && l.x1.is_finite()).collect();
     sorted.sort_by(|a, b| b.base.total_cmp(&a.base));
@@ -896,12 +896,12 @@ fn tw(points: f64) -> i64 {
 }
 
 /// Points → EMUs (12,700 to the point).
-fn emu(points: f64) -> i64 {
+pub(crate) fn emu(points: f64) -> i64 {
     (clamp(points, 0.0, 31680.0) * 12700.0).round() as i64
 }
 
 /// Text for XML: escaped, and without the characters XML 1.0 can't hold.
-fn xml(s: &str) -> String {
+pub(crate) fn xml(s: &str) -> String {
     let mut out = String::with_capacity(s.len());
     for c in s.chars() {
         match c {

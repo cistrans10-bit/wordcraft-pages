@@ -2792,3 +2792,12 @@ preview	Title	Ukázka
 	Wrote {n} files	Zapsáno souborů: {n}
 	{i} of {n}	{i} z {n}
 	{n} is the page number, {N} the number of pages	{n} je číslo stránky, {N} počet stránek
+	Convert to DOCX	Převést na DOCX
+	Convert to DOCX…	Převést na DOCX…
+	Save the PDF as a Word document	Uložit PDF jako dokument Word
+	Keep the layout	Zachovat rozložení
+	Text, pictures and drawing where they are on each page, page for page	Text, obrázky a kresby na svých místech, stránku po stránce
+	Flowing text	Souvislý text
+	Plain paragraphs that reflow and edit easily; the layout isn't kept	Prosté odstavce, které se snadno upravují; rozložení se nezachová
+	Include pictures	Zahrnout obrázky
+	A page break after each page	Konec stránky po každé stránce

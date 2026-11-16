@@ -2796,3 +2796,12 @@
 	Wrote {n} files	{n} fájl kiírva
 	{i} of {n}	{i} / {n}
 	{n} is the page number, {N} the number of pages	{n} az oldalszám, {N} az oldalak száma
+	Convert to DOCX	Konvertálás DOCX-be
+	Convert to DOCX…	Konvertálás DOCX-be…
+	Save the PDF as a Word document	A PDF mentése Word-dokumentumként
+	Keep the layout	Elrendezés megtartása
+	Text, pictures and drawing where they are on each page, page for page	A szöveg, a képek és a rajzok a helyükön, oldalról oldalra
+	Flowing text	Folyó szöveg
+	Plain paragraphs that reflow and edit easily; the layout isn't kept	Egyszerű, könnyen szerkeszthető bekezdések; az elrendezés nem marad meg
+	Include pictures	Képek belefoglalása
+	A page break after each page	Oldaltörés minden oldal után

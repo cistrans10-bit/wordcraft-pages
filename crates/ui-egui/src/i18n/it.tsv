@@ -2809,3 +2809,12 @@ preview	Title	Esempio
 	Wrote {n} files	{n} file scritti
 	{i} of {n}	{i} di {n}
 	{n} is the page number, {N} the number of pages	{n} è il numero di pagina, {N} il numero di pagine
+	Convert to DOCX	Converti in DOCX
+	Convert to DOCX…	Converti in DOCX…
+	Save the PDF as a Word document	Salva il PDF come documento Word
+	Keep the layout	Mantieni il layout
+	Text, pictures and drawing where they are on each page, page for page	Testo, immagini e disegni al loro posto in ogni pagina, pagina per pagina
+	Flowing text	Testo continuo
+	Plain paragraphs that reflow and edit easily; the layout isn't kept	Paragrafi semplici, facili da modificare; il layout non viene mantenuto
+	Include pictures	Includi immagini
+	A page break after each page	Interruzione di pagina dopo ogni pagina

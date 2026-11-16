@@ -2840,3 +2840,12 @@ template	Letter	Thư
 	Wrote {n} files	Đã ghi {n} tệp
 	{i} of {n}	{i} / {n}
 	{n} is the page number, {N} the number of pages	{n} là số trang, {N} là tổng số trang
+	Convert to DOCX	Chuyển sang DOCX
+	Convert to DOCX…	Chuyển sang DOCX…
+	Save the PDF as a Word document	Lưu PDF thành tài liệu Word
+	Keep the layout	Giữ bố cục
+	Text, pictures and drawing where they are on each page, page for page	Văn bản, ảnh và hình vẽ đúng chỗ trên từng trang
+	Flowing text	Văn bản liền
+	Plain paragraphs that reflow and edit easily; the layout isn't kept	Các đoạn văn thường, dễ sửa; không giữ bố cục
+	Include pictures	Gồm ảnh
+	A page break after each page	Ngắt trang sau mỗi trang

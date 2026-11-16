@@ -289,3 +289,19 @@ fn marks_made_after_pages_change_stay_in_the_pdf() {
     run(&mut s, "pdf.mark", json!({"page": 1, "kind": "rectangle", "rect": [100, 300, 120, 60]}));
     assert!(twins(&s).is_empty(), "page 1 of the PDF is no longer the document's page 1");
 }
+
+#[test]
+fn a_pdf_converts_to_a_docx_in_either_style() {
+    let (mut s, _) = opened_pdf();
+    run(&mut s, "pdf.mark", json!({"page": 1, "kind": "rectangle", "rect": [100, 300, 120, 60]}));
+    let dir = temp("todocx");
+    for style in ["layout", "flowing"] {
+        let path = format!("{dir}/{style}.docx");
+        run(&mut s, "pdf.toDocx", json!({"path": path, "style": style}));
+        let doc = crate::io::open_bytes("x.docx", &std::fs::read(&path).unwrap()).unwrap();
+        let text = doc.plain_text(StoryRef::Body);
+        assert!(text.contains("Second page") && text.contains("Third page"), "{style}: {text}");
+    }
+    assert!(s.run("pdf.toDocx", &json!({"path": format!("{dir}/x.docx"), "style": "nope"})).is_err());
+    let _ = std::fs::remove_dir_all(dir);
+}

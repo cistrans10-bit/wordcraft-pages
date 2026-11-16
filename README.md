@@ -82,6 +82,18 @@ Signature tool places a drawn signature, it doesn't sign cryptographically), des
 perspective correction of scans, and text added in boxes and edits is drawn as shapes rather than
 as searchable text.
 
+## Convert to DOCX
+
+**Convert to DOCX…** (PDF toolbar, and the PDF's Document menu; `pdf.toDocx`) saves the PDF, with
+its edits, as a Word document in one of two styles:
+
+- **Keep the layout:** page for page, text, pictures and drawing where they are (the converter
+  below).
+- **Flowing text:** plain paragraphs in reading order that reflow and edit easily, pictures inline
+  (optional), a page break after each PDF page (optional), on A4. Background pictures (page-sized,
+  or one picture tiled across a page) are left out. Ported from the PdfToDocx tool's converter
+  (PdfPig + Open XML SDK) to Rust: `crates/pdfread/src/reflow.rs`.
+
 ## From PDF to document
 
 Not rebuilt from a PDF: real Word tables and columns, gradients, clipping, rotated or vertical

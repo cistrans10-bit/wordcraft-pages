@@ -2815,3 +2815,12 @@ preview	Title	Titel
 	Wrote {n} files	Skrev {n} filer
 	{i} of {n}	{i} av {n}
 	{n} is the page number, {N} the number of pages	{n} är sidnumret, {N} antalet sidor
+	Convert to DOCX	Konvertera till DOCX
+	Convert to DOCX…	Konvertera till DOCX…
+	Save the PDF as a Word document	Spara PDF-filen som ett Word-dokument
+	Keep the layout	Behåll layouten
+	Text, pictures and drawing where they are on each page, page for page	Text, bilder och teckningar på sin plats, sida för sida
+	Flowing text	Löpande text
+	Plain paragraphs that reflow and edit easily; the layout isn't kept	Vanliga stycken som flödar och är lätta att redigera; layouten behålls inte
+	Include pictures	Ta med bilder
+	A page break after each page	Sidbrytning efter varje sida

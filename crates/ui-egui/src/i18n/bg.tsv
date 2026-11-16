@@ -2789,3 +2789,12 @@
 	Wrote {n} files	Записани файлове: {n}
 	{i} of {n}	{i} от {n}
 	{n} is the page number, {N} the number of pages	{n} е номерът на страницата, {N} – броят на страниците
+	Convert to DOCX	Преобразуване в DOCX
+	Convert to DOCX…	Преобразуване в DOCX…
+	Save the PDF as a Word document	Записване на PDF като документ на Word
+	Keep the layout	Запазване на оформлението
+	Text, pictures and drawing where they are on each page, page for page	Текст, картини и графика на местата си, страница по страница
+	Flowing text	Непрекъснат текст
+	Plain paragraphs that reflow and edit easily; the layout isn't kept	Обикновени абзаци, които се пренареждат и редактират лесно; оформлението не се запазва
+	Include pictures	Включване на картините
+	A page break after each page	Нова страница след всяка страница

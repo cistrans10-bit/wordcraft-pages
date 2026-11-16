@@ -2805,3 +2805,12 @@ preview	Title	Tytuł
 	Wrote {n} files	Zapisano plików: {n}
 	{i} of {n}	{i} z {n}
 	{n} is the page number, {N} the number of pages	{n} to numer strony, {N} liczba stron
+	Convert to DOCX	Konwertuj na DOCX
+	Convert to DOCX…	Konwertuj na DOCX…
+	Save the PDF as a Word document	Zapisz PDF jako dokument Word
+	Keep the layout	Zachowaj układ
+	Text, pictures and drawing where they are on each page, page for page	Tekst, obrazy i rysunki na swoich miejscach, strona po stronie
+	Flowing text	Tekst ciągły
+	Plain paragraphs that reflow and edit easily; the layout isn't kept	Zwykłe akapity, łatwe do edycji; układ nie jest zachowywany
+	Include pictures	Dołącz obrazy
+	A page break after each page	Podział strony po każdej stronie

@@ -271,13 +271,48 @@ pub struct TextSel {
 
 /// Document dialogs.
 pub enum Dialog {
-    Watermark { text: String, size: f32, opacity: f32, angle: f32, color: [u8; 3] },
-    PageText { text: String, position: usize, size: f32, start: i64 },
-    Properties { title: String, author: String, subject: String, keywords: String },
-    Save { password: String, confirm: String, flatten: bool, compress: bool },
-    Split { every: u32 },
-    Images { dpi: f32, jpeg: bool },
-    Signature { strokes: Vec<Vec<[f32; 2]>>, place: Option<(usize, PRect)> },
+    Watermark {
+        text: String,
+        size: f32,
+        opacity: f32,
+        angle: f32,
+        color: [u8; 3],
+    },
+    PageText {
+        text: String,
+        position: usize,
+        size: f32,
+        start: i64,
+    },
+    Properties {
+        title: String,
+        author: String,
+        subject: String,
+        keywords: String,
+    },
+    Save {
+        password: String,
+        confirm: String,
+        flatten: bool,
+        compress: bool,
+    },
+    Split {
+        every: u32,
+    },
+    Images {
+        dpi: f32,
+        jpeg: bool,
+    },
+    Signature {
+        strokes: Vec<Vec<[f32; 2]>>,
+        place: Option<(usize, PRect)>,
+    },
+    /// Convert to DOCX: keep the layout, or flowing text (with pictures, page breaks).
+    ToDocx {
+        flowing: bool,
+        images: bool,
+        page_breaks: bool,
+    },
 }
 
 /// What to do with a file picked for the PDF.
@@ -288,6 +323,7 @@ pub(crate) enum PdfPick {
     Extract { pages: Vec<usize> },
     Split { every: u32 },
     Images { dpi: f32, jpeg: bool },
+    ToDocx { flowing: bool, images: bool, page_breaks: bool },
 }
 
 /// The editing state of the PDF view.
@@ -1246,6 +1282,9 @@ pub fn toolbar(app: &mut WordApp, ui: &mut Ui, t: &Tokens) {
                 }
             });
             ui.menu_button(tl!("Document"), |ui| document_menu(app, ui));
+            if ui.button(tl!("Convert to DOCX…")).on_hover_text(tl!("Save the PDF as a Word document")).clicked() {
+                app.pdf.ed.dialog = Some(Dialog::ToDocx { flowing: false, images: true, page_breaks: true });
+            }
         });
     });
     let r = ui.max_rect();
@@ -1476,6 +1515,10 @@ fn document_menu(app: &mut WordApp, ui: &mut Ui) {
         app.pdf.ed.dialog = Some(Dialog::Images { dpi: 150.0, jpeg: false });
         ui.close();
     }
+    if ui.button(tl!("Convert to DOCX…")).clicked() {
+        app.pdf.ed.dialog = Some(Dialog::ToDocx { flowing: false, images: true, page_breaks: true });
+        ui.close();
+    }
     if ui.button(tl!("Copy All Text")).clicked() {
         if let Some(version) = app.pdf.shown_version()
             && let Some(w) = app.pdf.worker.as_mut()
@@ -1538,6 +1581,11 @@ pub(crate) fn finish_pick(app: &mut WordApp, pick: PdfPick, picked: Option<Strin
             let stem = std::path::Path::new(&path).file_stem().map_or_else(|| "part".to_string(), |s| s.to_string_lossy().into_owned());
             let stem = stem.trim_end_matches("-1").to_string();
             app.run("pdf.split", json!({"dir": folder(), "every": every, "name": stem}))
+        }
+        PdfPick::ToDocx { flowing, images, page_breaks } => {
+            let path = if path.to_ascii_lowercase().ends_with(".docx") { path.clone() } else { format!("{path}.docx") };
+            let style = if flowing { "flowing" } else { "layout" };
+            app.run("pdf.toDocx", json!({"path": path, "style": style, "images": images, "pageBreaks": page_breaks}))
         }
         PdfPick::Images { dpi, jpeg } => {
             app.run("pdf.exportImages", json!({"dir": folder(), "dpi": dpi, "format": if jpeg { "jpeg" } else { "png" }}))
@@ -1639,6 +1687,7 @@ pub fn dialogs(app: &mut WordApp, ctx: &egui::Context) {
         Dialog::Split { .. } => tl!("Split"),
         Dialog::Images { .. } => tl!("Export Pages as Images"),
         Dialog::Signature { .. } => tl!("Signature"),
+        Dialog::ToDocx { .. } => tl!("Convert to DOCX"),
     };
     egui::Window::new(title)
         .id(egui::Id::new("pdf-dialog"))
@@ -1742,6 +1791,19 @@ pub fn dialogs(app: &mut WordApp, ctx: &egui::Context) {
                         ui.radio_value(jpeg, true, "JPEG");
                     });
                 }
+                Dialog::ToDocx { flowing, images, page_breaks } => {
+                    ui.radio_value(flowing, false, tl!("Keep the layout"));
+                    ui.label(egui::RichText::new(tl!("Text, pictures and drawing where they are on each page, page for page")).small());
+                    ui.add_space(4.0);
+                    ui.radio_value(flowing, true, tl!("Flowing text"));
+                    ui.label(egui::RichText::new(tl!("Plain paragraphs that reflow and edit easily; the layout isn't kept")).small());
+                    ui.add_enabled_ui(*flowing, |ui| {
+                        ui.indent("pdf-flow-opts", |ui| {
+                            ui.checkbox(images, tl!("Include pictures"));
+                            ui.checkbox(page_breaks, tl!("A page break after each page"));
+                        });
+                    });
+                }
                 Dialog::Signature { strokes, .. } => {
                     ui.label(tl!("Draw your signature"));
                     let (r, resp) = ui.allocate_exact_size(vec2(420.0, 140.0), Sense::drag());
@@ -1815,6 +1877,10 @@ fn apply_dialog(app: &mut WordApp, d: Dialog) {
         Dialog::Images { dpi, jpeg } => {
             let name = format!("{}-1.{}", app.title_stem(), if jpeg { "jpg" } else { "png" });
             let _ = app.ask_file(FileDialogRequest::Save { name }, AfterPick::Pdf(PdfPick::Images { dpi, jpeg }));
+        }
+        Dialog::ToDocx { flowing, images, page_breaks } => {
+            let name = format!("{}.docx", app.title_stem());
+            let _ = app.ask_file(FileDialogRequest::Save { name }, AfterPick::Pdf(PdfPick::ToDocx { flowing, images, page_breaks }));
         }
         Dialog::Signature { strokes, place } => {
             app.pdf.ed.signature = strokes.into_iter().filter(|s| s.len() > 1).collect();

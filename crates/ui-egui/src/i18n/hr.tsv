@@ -2800,3 +2800,12 @@ preview	Title	Naslov
 	Wrote {n} files	Zapisano datoteka: {n}
 	{i} of {n}	{i} od {n}
 	{n} is the page number, {N} the number of pages	{n} je broj stranice, {N} broj stranica
+	Convert to DOCX	Pretvori u DOCX
+	Convert to DOCX…	Pretvori u DOCX…
+	Save the PDF as a Word document	Spremi PDF kao dokument programa Word
+	Keep the layout	Zadrži raspored
+	Text, pictures and drawing where they are on each page, page for page	Tekst, slike i crteži na svojim mjestima, stranicu po stranicu
+	Flowing text	Tekući tekst
+	Plain paragraphs that reflow and edit easily; the layout isn't kept	Obični odlomci koji se lako uređuju; raspored se ne zadržava
+	Include pictures	Uključi slike
+	A page break after each page	Prijelom stranice nakon svake stranice

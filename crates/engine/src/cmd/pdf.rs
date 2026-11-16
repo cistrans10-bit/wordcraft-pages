@@ -631,6 +631,24 @@ pub fn specs() -> Vec<CommandSpec> {
         CommandSpec::new("pdf.save", "Save PDF", "PDF", save)
             .params(r#"{"path"?: string (default: the PDF the document was opened from), "password"?: string (encrypt with it; "" saves without), "flatten"?: bool (every page a picture), "compress"?: bool (default true), "saveAs"?: bool (Save writes there from now on)}"#)
             .pure(),
+        CommandSpec::new("pdf.toDocx", "Convert to DOCX", "PDF › Export", |s, v| {
+            let path = p::req_str(v, "path")?.to_string();
+            // The PDF as shown: with its edits.
+            let pdf = edited(s, &SaveOptions::default()).map_err(CmdError::Failed)?;
+            let docx = match p::str(v, "style").unwrap_or("layout") {
+                "layout" => wordcraft_pdfread::to_docx(&pdf),
+                "flowing" => wordcraft_pdfread::to_docx_flowing(
+                    &pdf,
+                    wordcraft_pdfread::FlowOptions { images: p::bool(v, "images").unwrap_or(true), page_breaks: p::bool(v, "pageBreaks").unwrap_or(true) },
+                ),
+                other => return Err(CmdError::Params(format!("`style` must be \"layout\" or \"flowing\", not \"{other}\""))),
+            }
+            .map_err(|e| CmdError::Failed(e.to_string()))?;
+            crate::io::write_file(&path, &docx).map_err(CmdError::Failed)?;
+            Ok(json!({"path": path, "bytes": docx.len()}))
+        })
+        .params(r#"{"path": string (the .docx to write), "style"?: "layout" (keep the PDF's look: positions, fonts, pictures and drawing; default) | "flowing" (plain paragraphs that reflow, pictures inline), "images"?: bool (flowing: include pictures; default true), "pageBreaks"?: bool (flowing: a page break after each PDF page; default true)}"#)
+        .pure(),
         CommandSpec::new("pdf.extract", "Extract Pages", "PDF › Pages", |s, v| {
             let path = p::req_str(v, "path")?.to_string();
             let list = pages(v)?;
